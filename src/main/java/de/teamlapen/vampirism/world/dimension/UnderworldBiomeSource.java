@@ -18,14 +18,14 @@ import java.util.stream.Stream;
 public class UnderworldBiomeSource extends BiomeSource {
     public static final MapCodec<UnderworldBiomeSource> CODEC = RecordCodecBuilder.mapCodec(inst -> {
         return inst.group(
-                RegistryOps.retrieveElement(ModBiomes.VAMPIRE_FOREST))
+                RegistryOps.retrieveElement(ModBiomes.UNDERWORLD_VAMPIRE_FOREST))
                 .apply(inst, inst.stable(UnderworldBiomeSource::new));
     });
 
     private final Holder<Biome> biome;
 
     public UnderworldBiomeSource(HolderGetter<Biome> biomeGetter) {
-        this.biome = biomeGetter.getOrThrow(ModBiomes.VAMPIRE_FOREST);
+        this.biome = biomeGetter.getOrThrow(ModBiomes.UNDERWORLD_VAMPIRE_FOREST);
     }
 
     private UnderworldBiomeSource(Holder<Biome> biome) {

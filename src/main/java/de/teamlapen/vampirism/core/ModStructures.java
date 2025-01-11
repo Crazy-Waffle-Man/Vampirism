@@ -83,6 +83,7 @@ public class ModStructures {
     public static final ResourceKey<Structure> VAMPIRE_ALTAR = ResourceKey.create(Registries.STRUCTURE, VResourceLocation.mod("vampire_altar"));
     public static final ResourceKey<Structure> MOTHER = ResourceKey.create(Registries.STRUCTURE, VResourceLocation.mod("mother"));
     public static final ResourceKey<Structure> CRYPT = ResourceKey.create(Registries.STRUCTURE, VResourceLocation.mod("crypt"));
+    public static final ResourceKey<Structure> UNDERWORLD_PORTAL = ResourceKey.create(Registries.STRUCTURE, VResourceLocation.mod("underworld_portal"));
 
     public static final ResourceKey<StructureTemplatePool> HUNTER_TRAINER = createTemplatePool("village/entities/hunter_trainer");
     public static final ResourceKey<StructureProcessorList> TOTEM_FACTION = createProcessorList("totem_faction");
@@ -93,6 +94,7 @@ public class ModStructures {
     public static final ResourceKey<StructureSet> HUNTER_OUTPOST = createStructureSetKey("hunter_outpost");
     public static final ResourceKey<StructureSet> MOTHER_SET = createStructureSetKey("mother");
     public static final ResourceKey<StructureSet> CRYPT_SET = createStructureSetKey("crypt");
+    public static final ResourceKey<StructureSet> UNDERWORLD_PORTAL_SET = createStructureSetKey("underworld_portal");
 
     private static ResourceKey<StructureSet> createStructureSetKey(String name) {
         return ResourceKey.create(Registries.STRUCTURE_SET, VResourceLocation.mod(name));

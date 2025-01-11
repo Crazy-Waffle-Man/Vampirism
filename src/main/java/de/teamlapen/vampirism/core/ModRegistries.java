@@ -60,7 +60,9 @@ public class ModRegistries {
             .add(SKILL_TREE, ModSkills::createSkillTrees)
             .add(Registries.ENCHANTMENT, ModEnchantments::createEnchantments)
             .add(Registries.DIMENSION_TYPE, ModDimensions::bootstrapTypes)
-            .add(Registries.LEVEL_STEM, ModDimensions::bootstrapLevels);
+            .add(Registries.LEVEL_STEM, ModDimensions::bootstrapLevels)
+            .add(Registries.NOISE_SETTINGS, ModDimensions::bootstrapSource)
+            ;
 
     static void registerRegistries(NewRegistryEvent event) {
         event.register(SKILLS);

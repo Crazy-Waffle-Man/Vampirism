@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "vampirism:block/underworld_ns"
+    },
+    "axis=z": {
+      "model": "vampirism:block/underworld_ew"
+    }
+  }
+}

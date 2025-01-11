@@ -7,14 +7,12 @@ import de.teamlapen.vampirism.core.ModBlocks;
 import de.teamlapen.vampirism.util.RegUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.models.model.ModelLocationUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.ButtonBlock;
-import net.minecraft.world.level.block.LanternBlock;
-import net.minecraft.world.level.block.PressurePlateBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
@@ -298,6 +296,14 @@ public class BlockStateProvider extends net.neoforged.neoforge.client.model.gene
         var vampire_soul_lantern = models().withExistingParent("vampire_soul_lantern", mcLoc("block/template_lantern")).renderType(cutout).texture("lantern", modLoc("block/vampire_soul_lantern"));
         var hanging_vampire_soul_lantern = models().withExistingParent("vampire_soul_lantern_hanging", mcLoc("block/template_hanging_lantern")).renderType(cutout).texture("lantern", modLoc("block/vampire_soul_lantern"));
         getVariantBuilder(ModBlocks.VAMPIRE_SOUL_LANTERN.get()).forAllStates(state -> ConfiguredModel.builder().modelFile(state.getValue(LanternBlock.HANGING) ? hanging_vampire_soul_lantern : vampire_soul_lantern).build());
+
+        var ns = models().withExistingParent("underworld_ns", ModelLocationUtils.getModelLocation(Blocks.NETHER_PORTAL, "_ns"))
+                .texture("portal", modLoc("block/underworld_portal"));
+        var ew = models().withExistingParent("underworld_ew", ModelLocationUtils.getModelLocation(Blocks.NETHER_PORTAL, "_ew"))
+                .texture("portal", modLoc("block/underworld_portal"));
+        getVariantBuilder(ModBlocks.UNDERWORLD_PORTAL.get())
+                .partialState().with(BlockStateProperties.HORIZONTAL_AXIS, Direction.Axis.X).modelForState().modelFile(ns).addModel()
+                .partialState().with(BlockStateProperties.HORIZONTAL_AXIS, Direction.Axis.Z).modelForState().modelFile(ew).addModel();
     }
 
     private void createWoodStates() {

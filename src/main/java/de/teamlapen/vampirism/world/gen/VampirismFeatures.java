@@ -8,6 +8,7 @@ import de.teamlapen.vampirism.core.ModEntities;
 import de.teamlapen.vampirism.core.ModFeatures;
 import de.teamlapen.vampirism.core.tags.ModBiomeTags;
 import de.teamlapen.vampirism.mixin.accessor.OrePlacementAccessor;
+import de.teamlapen.vampirism.world.gen.feature.BossFeatureConfiguration;
 import de.teamlapen.vampirism.world.gen.feature.treedecorators.TrunkCursedVineDecorator;
 import de.teamlapen.vampirism.world.gen.modifier.ExtendedAddSpawnsBiomeModifier;
 import net.minecraft.core.HolderGetter;
@@ -19,6 +20,7 @@ import net.minecraft.data.worldgen.features.VegetationFeatures;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.biome.Biome;
@@ -54,6 +56,7 @@ public class VampirismFeatures {
     public static final ResourceKey<ConfiguredFeature<?, ?>> VAMPIRE_TREES = createConfiguredKey("vampire_trees_placed");
     public static final ResourceKey<ConfiguredFeature<?, ?>> ORE_DARK_STONE = createConfiguredKey("ore_dark_stone");
     public static final ResourceKey<ConfiguredFeature<?, ?>> ORE_CURSED_DIRT = createConfiguredKey("ore_cursed_dirt");
+    public static final ResourceKey<ConfiguredFeature<?, ?>> BOSS = createConfiguredKey("boss");
 
     public static final ResourceKey<PlacedFeature> VAMPIRE_FLOWER_PLACED = createPlacedKey("vampire_flower");
     public static final ResourceKey<PlacedFeature> CURSED_ROOT_PLACED = createPlacedKey("cursed_root");
@@ -65,6 +68,7 @@ public class VampirismFeatures {
     public static final ResourceKey<PlacedFeature> FOREST_GRASS_PLACED = createPlacedKey("forest_grass");
     public static final ResourceKey<PlacedFeature> ORE_DARK_STONE_PLACED = createPlacedKey("ore_dark_stone_lower");
     public static final ResourceKey<PlacedFeature> ORE_CURSED_DIRT_PLACED = createPlacedKey("ore_cursed_dirt");
+    public static final ResourceKey<PlacedFeature> BOSS_PLACED = createPlacedKey("boss");
 
     public static final ResourceKey<BiomeModifier> VAMPIRE_SPAWN = createModifierKey("spawn/vampire_spawns");
     public static final ResourceKey<BiomeModifier> HUNTER_SPAWN = createModifierKey("spawn/hunter_spawns");
@@ -95,6 +99,7 @@ public class VampirismFeatures {
         context.register(VAMPIRE_TREES, new ConfiguredFeature<>(Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(List.of(new WeightedPlacedFeature(placedFeatures.getOrThrow(CURSED_SPRUCE_TREE_PLACED), 0.3f)), placedFeatures.getOrThrow(DARK_SPRUCE_TREE_PLACED))));
         context.register(ORE_DARK_STONE, new ConfiguredFeature<>(Feature.ORE, new OreConfiguration(new TagMatchTest(BlockTags.BASE_STONE_OVERWORLD), ModBlocks.DARK_STONE.get().defaultBlockState(), 64)));
         context.register(ORE_CURSED_DIRT, new ConfiguredFeature<>(Feature.ORE, new OreConfiguration(new TagMatchTest(BlockTags.BASE_STONE_OVERWORLD), ModBlocks.CURSED_EARTH.get().defaultBlockState(), 33)));
+        context.register(BOSS, new ConfiguredFeature<>(ModFeatures.BOSS.get(), BossFeatureConfiguration.INSTANCE));
     }
 
     public static void createPlacedFeatures(BootstrapContext<PlacedFeature> context) {
@@ -109,6 +114,7 @@ public class VampirismFeatures {
         context.register(FOREST_GRASS_PLACED, new PlacedFeature(placedFeatures.getOrThrow(VegetationFeatures.PATCH_GRASS), VegetationPlacements.worldSurfaceSquaredWithCount(2)));
         context.register(ORE_DARK_STONE_PLACED, new PlacedFeature(placedFeatures.getOrThrow(ORE_DARK_STONE), OrePlacementAccessor.commonOrePlacement(30, HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.top()))));
         context.register(ORE_CURSED_DIRT_PLACED, new PlacedFeature(placedFeatures.getOrThrow(ORE_CURSED_DIRT), OrePlacementAccessor.commonOrePlacement(7, HeightRangePlacement.uniform(VerticalAnchor.absolute(0), VerticalAnchor.absolute(160)))));
+        context.register(BOSS_PLACED, new PlacedFeature(placedFeatures.getOrThrow(BOSS), List.of(FixedPlacement.of(ServerLevel.END_SPAWN_POINT.below()), BiomeFilter.biome())));
     }
 
     public static void createBiomeModifier(BootstrapContext<BiomeModifier> context) {

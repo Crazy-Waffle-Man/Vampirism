@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/nether_portal_ns",
+  "textures": {
+    "portal": "vampirism:block/underworld_portal"
+  }
+}

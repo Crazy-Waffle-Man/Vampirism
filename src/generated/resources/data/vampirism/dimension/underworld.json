@@ -5,6 +5,6 @@
     "biome_source": {
       "type": "vampirism:underworld"
     },
-    "settings": "minecraft:end"
+    "settings": "vampirism:noise"
   }
 }

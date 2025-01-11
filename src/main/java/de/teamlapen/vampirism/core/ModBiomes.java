@@ -29,6 +29,7 @@ public class ModBiomes {
     public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<ExtendedAddSpawnsBiomeModifier>> ADD_SPAWNS_BIOME_MODIFIER_TYPE = BIOME_MODIFIER_SERIALIZERS.register("extended_add_spawns", () -> ExtendedAddSpawnsBiomeModifier.CODEC);
 
     public static final ResourceKey<Biome> VAMPIRE_FOREST = ResourceKey.create(Registries.BIOME, VResourceLocation.mod("vampire_forest"));
+    public static final ResourceKey<Biome> UNDERWORLD_VAMPIRE_FOREST = ResourceKey.create(Registries.BIOME, VResourceLocation.mod("underworld_vampire_forest"));
 
 
     static void register(IEventBus bus) {
@@ -39,6 +40,7 @@ public class ModBiomes {
         HolderGetter<PlacedFeature> placedFeatures = context.lookup(Registries.PLACED_FEATURE);
         HolderGetter<ConfiguredWorldCarver<?>> configuredCarvers = context.lookup(Registries.CONFIGURED_CARVER);
 
-        context.register(ModBiomes.VAMPIRE_FOREST, VampirismBiomes.createVampireForest(placedFeatures, configuredCarvers));
+        context.register(ModBiomes.VAMPIRE_FOREST, VampirismBiomes.createVampireForest(placedFeatures, configuredCarvers, false));
+        context.register(ModBiomes.UNDERWORLD_VAMPIRE_FOREST, VampirismBiomes.createVampireForest(placedFeatures, configuredCarvers, true));
     }
 }

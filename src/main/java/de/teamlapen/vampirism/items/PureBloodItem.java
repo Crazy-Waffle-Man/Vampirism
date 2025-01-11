@@ -2,15 +2,19 @@ package de.teamlapen.vampirism.items;
 
 import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.api.VampirismAPI;
+import de.teamlapen.vampirism.core.ModBlocks;
 import de.teamlapen.vampirism.core.ModEffects;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.entity.player.vampire.VampireLeveling;
 import de.teamlapen.vampirism.entity.player.vampire.VampirePlayer;
 import de.teamlapen.vampirism.entity.vampire.DrinkBloodContext;
+import de.teamlapen.vampirism.world.gen.UnderworldPortalShape;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,13 +23,17 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.portal.PortalShape;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 public class PureBloodItem extends Item {
 
@@ -100,6 +108,20 @@ public class PureBloodItem extends Item {
         return super.use(worldIn, playerIn, handIn);
     }
 
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        BlockState blockState = context.getLevel().getBlockState(context.getClickedPos());
+        if (blockState.is(ModBlocks.BLOODY_DARK_STONE_BRICKS)) {
+            Optional<UnderworldPortalShape> underworldPortalShape = Optional.of(new UnderworldPortalShape(context.getLevel(), context.getClickedPos().above(), Direction.Axis.X));
+            underworldPortalShape = underworldPortalShape.filter(portalShape -> portalShape.isValid() && portalShape.numPortalBlocks == 0);
+            if (underworldPortalShape.isEmpty()) {
+                underworldPortalShape = Optional.of(new UnderworldPortalShape(context.getLevel(), context.getClickedPos().above(), Direction.Axis.Z));
+                underworldPortalShape =  underworldPortalShape.filter(portalShape -> portalShape.isValid() && portalShape.numPortalBlocks == 0);
+            }
+            underworldPortalShape.ifPresent(UnderworldPortalShape::createPortalBlocks);
+        }
+        return super.useOn(context);
+    }
 
     private String descriptionId;
 

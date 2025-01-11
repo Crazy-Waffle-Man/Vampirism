@@ -249,6 +249,7 @@ public class ModBlocks {
                     .noOcclusion()
                     .pushReaction(PushReaction.DESTROY)
     ));
+    public static final DeferredBlock<UnderworldPortalBlock> UNDERWORLD_PORTAL = BLOCKS.register("underworld_portal", () -> new UnderworldPortalBlock(BlockBehaviour.Properties.of().noLootTable().noCollission().randomTicks().strength(-1).sound(SoundType.GLASS).lightLevel(x -> 11).pushReaction(PushReaction.BLOCK)));
 
     /**
      * TUTORIAL:

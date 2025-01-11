@@ -2,6 +2,8 @@ package de.teamlapen.vampirism.core;
 
 
 import de.teamlapen.vampirism.REFERENCE;
+import de.teamlapen.vampirism.world.gen.feature.BossFeature;
+import de.teamlapen.vampirism.world.gen.feature.BossFeatureConfiguration;
 import de.teamlapen.vampirism.world.gen.feature.VampireDungeonFeature;
 import de.teamlapen.vampirism.world.gen.feature.treedecorators.TrunkCursedVineDecorator;
 import net.minecraft.core.registries.Registries;
@@ -17,6 +19,7 @@ public class ModFeatures {
     public static final DeferredRegister<TreeDecoratorType<?>> TREE_DECORATOR = DeferredRegister.create(Registries.TREE_DECORATOR_TYPE, REFERENCE.MODID);
 
     public static final DeferredHolder<Feature<?>, VampireDungeonFeature> VAMPIRE_DUNGEON = FEATURES.register("vampire_dungeon", () -> new VampireDungeonFeature(NoneFeatureConfiguration.CODEC));
+    public static final DeferredHolder<Feature<?>, BossFeature> BOSS = FEATURES.register("boss", () -> new BossFeature(BossFeatureConfiguration.CODEC));
 
     public static final DeferredHolder<TreeDecoratorType<?>, TreeDecoratorType<TrunkCursedVineDecorator>> TRUNK_CURSED_VINE = TREE_DECORATOR.register("trunk_cursed_vine", () -> new TreeDecoratorType<>(TrunkCursedVineDecorator.CODEC));
 

@@ -7,6 +7,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.Carvers;
+import net.minecraft.data.worldgen.placement.EndPlacements;
 import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
 import net.minecraft.data.worldgen.placement.OrePlacements;
 import net.minecraft.sounds.Musics;
@@ -20,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class VampirismBiomes {
 
-    public static @NotNull Biome createVampireForest(HolderGetter<PlacedFeature> featureGetter, HolderGetter<ConfiguredWorldCarver<?>> carverGetter) {
+    public static @NotNull Biome createVampireForest(HolderGetter<PlacedFeature> featureGetter, HolderGetter<ConfiguredWorldCarver<?>> carverGetter, boolean underworld) {
         MobSpawnSettings.Builder mobSpawnBuilder = new MobSpawnSettings.Builder();
         mobSpawnBuilder.creatureGenerationProbability(0.25f);
         mobSpawnBuilder.addSpawn(MobCategory.MONSTER, new MobSpawnSettings.SpawnerData(ModEntities.VAMPIRE.get(), 80, 1, 3));
@@ -33,13 +34,18 @@ public class VampirismBiomes {
                 .ambientAdditionsSound(new AmbientAdditionsSettings(SoundEvents.AMBIENT_CRIMSON_FOREST_ADDITIONS, 0.0111D));
         ModSounds.VAMPIRE_FOREST_AMBIENT.asOptional().map(BuiltInRegistries.SOUND_EVENT::wrapAsHolder).ifPresent(soundEvent -> biomeSpecialEffectsBuilder.backgroundMusic(Musics.createGameMusic(soundEvent)));
 
-        return prepareVampireForestBuilder(featureGetter, carverGetter, mobSpawnBuilder, biomeSpecialEffectsBuilder).build();
+        return prepareVampireForestBuilder(featureGetter, carverGetter, mobSpawnBuilder, biomeSpecialEffectsBuilder, underworld).build();
     }
 
-    public static Biome.@NotNull BiomeBuilder prepareVampireForestBuilder(HolderGetter<PlacedFeature> featureGetter, HolderGetter<ConfiguredWorldCarver<?>> carverGetter, MobSpawnSettings.@NotNull Builder spawnBuilder, BiomeSpecialEffects.@NotNull Builder ambienceBuilder) {
+    public static Biome.@NotNull BiomeBuilder prepareVampireForestBuilder(HolderGetter<PlacedFeature> featureGetter, HolderGetter<ConfiguredWorldCarver<?>> carverGetter, MobSpawnSettings.@NotNull Builder spawnBuilder, BiomeSpecialEffects.@NotNull Builder ambienceBuilder, boolean underworld) {
         BiomeGenerationSettings.Builder builder = new BiomeGenerationSettings.Builder(featureGetter, carverGetter);
         BiomeDefaultFeatures.addDefaultCarversAndLakes(builder); //carver
         addModdedWaterLake(builder);
+
+        if (underworld) {
+            builder.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, VampirismFeatures.BOSS_PLACED);
+            builder.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, EndPlacements.END_SPIKE);
+        }
 
         addVampireFlower(builder);
         addBushPatch(builder);
