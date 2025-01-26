@@ -4,6 +4,8 @@ import com.mojang.serialization.MapCodec;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.world.dimension.UnderworldBiomeSource;
+import de.teamlapen.vampirism.world.dimension.UnderworldDensityFunction;
+import de.teamlapen.vampirism.world.dimension.UnderworldEffects;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -18,8 +20,10 @@ import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.*;
+import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.RegisterDimensionSpecialEffectsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -28,34 +32,48 @@ import java.util.OptionalLong;
 
 public class ModDimensions {
 
-    public static final ResourceKey<DimensionType> UNDERWORLD = ResourceKey.create(Registries.DIMENSION_TYPE, VResourceLocation.mod("underworld"));
-    public static final ResourceKey<LevelStem> UNDERWORLD_STEM = ResourceKey.create(Registries.LEVEL_STEM, VResourceLocation.mod("underworld"));
-    public static final ResourceKey<Level> UNDERWORLD_LEVEL = ResourceKey.create(Registries.DIMENSION, UNDERWORLD_STEM.location());
-    public static final ResourceKey<NoiseGeneratorSettings> RULES = ResourceKey.create(Registries.NOISE_SETTINGS, VResourceLocation.mod("noise"));
     public static final DeferredRegister<MapCodec<? extends BiomeSource>> BIOME_SOURCES = DeferredRegister.create(Registries.BIOME_SOURCE, REFERENCE.MODID);
-    private static final ResourceKey<DensityFunction> SLOPED_CHEESE_END = ResourceKey.create(Registries.DENSITY_FUNCTION, ResourceLocation.withDefaultNamespace("end/sloped_cheese"));
-    private static final ResourceKey<DensityFunction> SHIFT_X = ResourceKey.create(Registries.DENSITY_FUNCTION, ResourceLocation.withDefaultNamespace("shift_x"));
-    private static final ResourceKey<DensityFunction> SHIFT_Z = ResourceKey.create(Registries.DENSITY_FUNCTION, ResourceLocation.withDefaultNamespace("shift_z"));
+    public static final DeferredRegister<MapCodec<? extends DensityFunction>> DENSITY_FUNCTIONS = DeferredRegister.create(Registries.DENSITY_FUNCTION_TYPE, REFERENCE.MODID);
 
+    @SuppressWarnings("unused")
+    public static final DeferredHolder<MapCodec<? extends BiomeSource>, MapCodec<? extends BiomeSource>> UNDERWORLD_BIOME_SOURCE_CODEC = BIOME_SOURCES.register("underworld", () -> UnderworldBiomeSource.CODEC);
+    @SuppressWarnings("unused")
+    public static final DeferredHolder<MapCodec<? extends DensityFunction>, MapCodec<? extends DensityFunction>> UNDERWORLD_DENSITY_FUNCTION_CODEC = DENSITY_FUNCTIONS.register("underworld", UnderworldDensityFunction.CODEC::codec);
 
-    public static final DeferredHolder<MapCodec<? extends BiomeSource>, MapCodec<? extends BiomeSource>> UNDERWORLD_BIOME_SOURCE = BIOME_SOURCES.register("underworld", () -> UnderworldBiomeSource.CODEC);
+    public static final ResourceKey<DimensionType> UNDERWORLD_DIMENSION_TYPE = ResourceKey.create(Registries.DIMENSION_TYPE, VResourceLocation.mod("underworld"));
+    public static final ResourceKey<LevelStem> UNDERWORLD_LEVEL_STEM = ResourceKey.create(Registries.LEVEL_STEM, VResourceLocation.mod("underworld"));
+    public static final ResourceKey<Level> UNDERWORLD_LEVEL = ResourceKey.create(Registries.DIMENSION, UNDERWORLD_LEVEL_STEM.location());
+    public static final ResourceKey<NoiseGeneratorSettings> UNDERWORLD_NOISE_GENERATOR = ResourceKey.create(Registries.NOISE_SETTINGS, VResourceLocation.mod("underworld"));
+    public static final ResourceKey<DensityFunction> UNDERWORLD_DENSITY_FUNCTION =  ResourceKey.create(Registries.DENSITY_FUNCTION, VResourceLocation.mod("underworld"));
+    public static final ResourceKey<DensityFunction> BASE_3D_NOISE_UNDERWORLD = ResourceKey.create(Registries.DENSITY_FUNCTION, VResourceLocation.mod("base_3d_noise"));
+
+    public static final ResourceLocation UNDERWORLD_DIMENSION_SPECIAL_EFFECTS = VResourceLocation.mod("underworld");
+
 
     static void register(IEventBus bus) {
         BIOME_SOURCES.register(bus);
-    }
-    static void bootstrapTypes(BootstrapContext<DimensionType> context) {
-        context.register(UNDERWORLD, new DimensionType(OptionalLong.of(6000), false, false, false, false, 1.0, false, false, 0, 256, 256, BlockTags.INFINIBURN_END, BuiltinDimensionTypes.OVERWORLD_EFFECTS, 5f, new DimensionType.MonsterSettings(false, false, UniformInt.of(0,7), 0)));
+        DENSITY_FUNCTIONS.register(bus);
     }
 
-    static void bootstrapLevels(BootstrapContext<LevelStem> context) {
-        var dimensionTypes = context.lookup(Registries.DIMENSION_TYPE);
-        var noiseSettings = context.lookup(Registries.NOISE_SETTINGS);
-        var biomes = context.lookup(Registries.BIOME);
-        context.register(UNDERWORLD_STEM, new LevelStem(dimensionTypes.getOrThrow(UNDERWORLD), new NoiseBasedChunkGenerator(new UnderworldBiomeSource(biomes), noiseSettings.getOrThrow(RULES))));
+    static void bootstrapDimensionTypes(BootstrapContext<DimensionType> context) {
+        context.register(UNDERWORLD_DIMENSION_TYPE, new DimensionType(OptionalLong.of(6000), false, false, false, false, 1.0, false, false, 0, 256, 256, BlockTags.INFINIBURN_END, UNDERWORLD_DIMENSION_SPECIAL_EFFECTS, 5f, new DimensionType.MonsterSettings(false, false, UniformInt.of(0,7), 0)));
     }
 
-    static void bootstrapSource(BootstrapContext<NoiseGeneratorSettings> context) {
-        context.register(RULES, new NoiseGeneratorSettings(new NoiseSettings(0,128,1,2), ModBlocks.DARK_STONE.get().defaultBlockState(), Blocks.AIR.defaultBlockState(), rute(context.lookup(Registries.DENSITY_FUNCTION), context.lookup(Registries.NOISE)), rule(), List.of(), 0, false, false, false, true));
+    static void bootstrapLevelStem(BootstrapContext<LevelStem> context) {
+        context.register(UNDERWORLD_LEVEL_STEM, new LevelStem(context.lookup(Registries.DIMENSION_TYPE).getOrThrow(UNDERWORLD_DIMENSION_TYPE), new NoiseBasedChunkGenerator(new UnderworldBiomeSource(context.lookup(Registries.BIOME)), context.lookup(Registries.NOISE_SETTINGS).getOrThrow(UNDERWORLD_NOISE_GENERATOR))));
+    }
+
+    static void bootstrapNoise(BootstrapContext<NoiseGeneratorSettings> context) {
+        context.register(UNDERWORLD_NOISE_GENERATOR, new NoiseGeneratorSettings(new NoiseSettings(0,128,1,2), ModBlocks.DARK_STONE.get().defaultBlockState(), Blocks.AIR.defaultBlockState(), rute(context.lookup(Registries.DENSITY_FUNCTION), context.lookup(Registries.NOISE)), rule(), List.of(), 0, false, false, false, true));
+    }
+
+    static void bootstrapDensityFunctions(BootstrapContext<DensityFunction> context) {
+        context.register(BASE_3D_NOISE_UNDERWORLD, BlendedNoise.createUnseeded(0.25, 0.25, 80.0, 160.0, 4.0));
+        context.register(UNDERWORLD_DENSITY_FUNCTION, DensityFunctions.add(new UnderworldDensityFunction(0), NoiseRouterData.getFunction(context.lookup(Registries.DENSITY_FUNCTION), BASE_3D_NOISE_UNDERWORLD)));
+    }
+
+    static void registerDimensionEffects(RegisterDimensionSpecialEffectsEvent event) {
+        event.register(UNDERWORLD_DIMENSION_SPECIAL_EFFECTS, new UnderworldEffects());
     }
 
     private static SurfaceRules.RuleSource rule() {
@@ -73,56 +91,29 @@ public class ModDimensions {
     }
 
     private static NoiseRouter rute(HolderGetter<DensityFunction> density, HolderGetter<NormalNoise.NoiseParameters> noise) {
-        DensityFunction densityfunction = DensityFunctions.cache2d(DensityFunctions.endIslands(0L));
-        DensityFunction densityfunction1 = postProcess(slideEnd(getFunction(density, SLOPED_CHEESE_END)));
+        DensityFunction erosion = DensityFunctions.cache2d(new UnderworldDensityFunction(0));
+        DensityFunction finalDensity = NoiseRouterData.postProcess(NoiseRouterData.slideEnd(NoiseRouterData.getFunction(density, UNDERWORLD_DENSITY_FUNCTION)));
 
-        DensityFunction densityfunction4 = getFunction(density, SHIFT_X);
-        DensityFunction densityfunction5 = getFunction(density, SHIFT_Z);
-        DensityFunction densityfunction7 = DensityFunctions.shiftedNoise2d(
-                densityfunction4, densityfunction5, 0.25, noise.getOrThrow(Noises.VEGETATION));
+        DensityFunction vegetationXShift = NoiseRouterData.getFunction(density, NoiseRouterData.SHIFT_X);
+        DensityFunction vegerationZShift = NoiseRouterData.getFunction(density, NoiseRouterData.SHIFT_Z);
+        DensityFunction vegetation = DensityFunctions.shiftedNoise2d(vegetationXShift, vegerationZShift, 0.25, noise.getOrThrow(Noises.VEGETATION));
         return new NoiseRouter(
                 DensityFunctions.zero(),
                 DensityFunctions.zero(),
                 DensityFunctions.zero(),
                 DensityFunctions.zero(),
                 DensityFunctions.zero(),
-                densityfunction7,
+                vegetation,
                 DensityFunctions.zero(),
-                densityfunction,
+                erosion,
                 DensityFunctions.zero(),
-                DensityFunctions.zero(),
-                slideEnd(DensityFunctions.add(densityfunction, DensityFunctions.constant(-0.703125))),
-                densityfunction1,
+                NoiseRouterData.getFunction(density, NoiseRouterData.RIDGES),
+                NoiseRouterData.slideEnd(DensityFunctions.add(erosion, DensityFunctions.constant(-0.703125))),
+                finalDensity,
                 DensityFunctions.zero(),
                 DensityFunctions.zero(),
                 DensityFunctions.zero()
         );
-    }
-
-    private static DensityFunction postProcess(DensityFunction densityFunction) {
-        DensityFunction densityfunction = DensityFunctions.blendDensity(densityFunction);
-        return DensityFunctions.mul(DensityFunctions.interpolated(densityfunction), DensityFunctions.constant(0.64)).squeeze();
-    }
-
-    private static DensityFunction slideEnd(DensityFunction densityFunction) {
-        return slideEndLike(densityFunction, 0, 128);
-    }
-
-    private static DensityFunction slideEndLike(DensityFunction densityFunction, int minY, int maxY) {
-        return slide(densityFunction, minY, maxY, 72, -184, -23.4375, 4, 32, -0.234375);
-    }
-
-    private static DensityFunction slide(
-            DensityFunction input, int minY, int maxY, int p_224447_, int p_224448_, double p_224449_, int p_224450_, int p_224451_, double p_224452_
-    ) {
-        DensityFunction densityfunction1 = DensityFunctions.yClampedGradient(minY + maxY - p_224447_, minY + maxY - p_224448_, 1.0, 0.0);
-        DensityFunction $$9 = DensityFunctions.lerp(densityfunction1, p_224449_, input);
-        DensityFunction densityfunction2 = DensityFunctions.yClampedGradient(minY + p_224450_, minY + p_224451_, 0.0, 1.0);
-        return DensityFunctions.lerp(densityfunction2, p_224452_, $$9);
-    }
-
-    private static DensityFunction getFunction(HolderGetter<DensityFunction> densityFunctions, ResourceKey<DensityFunction> key) {
-        return new DensityFunctions.HolderHolder(densityFunctions.getOrThrow(key));
     }
 
 }

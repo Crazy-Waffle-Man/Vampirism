@@ -10,6 +10,7 @@ import de.teamlapen.vampirism.entity.player.vampire.actions.VampireActions;
 import de.teamlapen.vampirism.entity.player.vampire.skills.VampireSkills;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.RegisterDimensionSpecialEffectsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
@@ -80,6 +81,11 @@ public class RegistryManager {
     @SubscribeEvent
     public void onRegisterDataMapTypes(RegisterDataMapTypesEvent event) {
         ModDataMaps.registerDataMaps(event);
+    }
+
+    @SubscribeEvent
+    public void registerDimensionSpecialEffects(RegisterDimensionSpecialEffectsEvent event) {
+        ModDimensions.registerDimensionEffects(event);
     }
 
     public void registerModEventHandler() {

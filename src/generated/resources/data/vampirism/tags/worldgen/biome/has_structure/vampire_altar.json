@@ -1,4 +1,7 @@
 {
+  "remove": [
+    "vampirism:underworld_vampire_forest"
+  ],
   "values": [
     "#c:is_wasteland",
     "#c:is_plateau",

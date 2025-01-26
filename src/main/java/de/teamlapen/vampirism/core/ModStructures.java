@@ -46,6 +46,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.*;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.holdersets.AndHolderSet;
+import net.neoforged.neoforge.registries.holdersets.NotHolderSet;
 
 import java.util.List;
 import java.util.Map;

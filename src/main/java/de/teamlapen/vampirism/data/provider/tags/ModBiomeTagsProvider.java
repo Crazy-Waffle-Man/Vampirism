@@ -28,7 +28,7 @@ public class ModBiomeTagsProvider extends BiomeTagsProvider {
         tag(ModBiomeTags.HasFaction.IS_FACTION_BIOME).addTags(ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME, ModBiomeTags.HasFaction.IS_HUNTER_BIOME);
         tag(ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME).add(ModBiomes.VAMPIRE_FOREST, ModBiomes.UNDERWORLD_VAMPIRE_FOREST);
         tag(ModBiomeTags.HasFaction.IS_HUNTER_BIOME);
-        tag(ModBiomeTags.HasStructure.VAMPIRE_ALTAR).addTags(Tags.Biomes.IS_WASTELAND, Tags.Biomes.IS_PLATEAU, Tags.Biomes.IS_RARE, Tags.Biomes.IS_SPOOKY, Tags.Biomes.IS_SWAMP, ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME);
+        tag(ModBiomeTags.HasStructure.VAMPIRE_ALTAR).addTags(Tags.Biomes.IS_WASTELAND, Tags.Biomes.IS_PLATEAU, Tags.Biomes.IS_RARE, Tags.Biomes.IS_SPOOKY, Tags.Biomes.IS_SWAMP, ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME).remove(ModBiomes.UNDERWORLD_VAMPIRE_FOREST);
         tag(ModBiomeTags.HasStructure.HUNTER_OUTPOST_PLAINS).addTags(Tags.Biomes.IS_PLAINS, BiomeTags.IS_FOREST);
         tag(ModBiomeTags.HasStructure.HUNTER_OUTPOST_DESERT).addTags(Tags.Biomes.IS_DESERT);
         tag(ModBiomeTags.HasStructure.HUNTER_OUTPOST_VAMPIRE_FOREST).add(ModBiomes.VAMPIRE_FOREST);
@@ -47,9 +47,9 @@ public class ModBiomeTagsProvider extends BiomeTagsProvider {
         tag(ModBiomeTags.NoSpawn.HUNTER).addTags(ModBiomeTags.HasFaction.IS_FACTION_BIOME);
         tag(ModBiomeTags.HasSpawn.ADVANCED_HUNTER).addTags(BiomeTags.IS_OVERWORLD);
         tag(ModBiomeTags.NoSpawn.ADVANCED_HUNTER).addTags(ModBiomeTags.HasFaction.IS_FACTION_BIOME);
-        tag(ModBiomeTags.HasStructure.VAMPIRE_HUT).addTags(ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME);
-        tag(ModBiomeTags.HasStructure.MOTHER).addTag(ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME);
-        tag(ModBiomeTags.HasStructure.CRYPT).addTag(ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME);
+        tag(ModBiomeTags.HasStructure.VAMPIRE_HUT).addTags(ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME).remove(ModBiomes.UNDERWORLD_VAMPIRE_FOREST);
+        tag(ModBiomeTags.HasStructure.MOTHER).addTag(ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME).remove(ModBiomes.UNDERWORLD_VAMPIRE_FOREST);
+        tag(ModBiomeTags.HasStructure.CRYPT).addTag(ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME).remove(ModBiomes.UNDERWORLD_VAMPIRE_FOREST);
         tag(Tags.Biomes.NO_DEFAULT_MONSTERS).add(ModBiomes.VAMPIRE_FOREST);
     }
 }

@@ -22,6 +22,7 @@ import de.teamlapen.vampirism.world.gen.VampirismFeatures;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
@@ -59,9 +60,10 @@ public class ModRegistries {
             .add(SKILL_NODE, ModSkills::createSkillNodes)
             .add(SKILL_TREE, ModSkills::createSkillTrees)
             .add(Registries.ENCHANTMENT, ModEnchantments::createEnchantments)
-            .add(Registries.DIMENSION_TYPE, ModDimensions::bootstrapTypes)
-            .add(Registries.LEVEL_STEM, ModDimensions::bootstrapLevels)
-            .add(Registries.NOISE_SETTINGS, ModDimensions::bootstrapSource)
+            .add(Registries.DIMENSION_TYPE, ModDimensions::bootstrapDimensionTypes)
+            .add(Registries.LEVEL_STEM, ModDimensions::bootstrapLevelStem)
+            .add(Registries.NOISE_SETTINGS, ModDimensions::bootstrapNoise)
+            .add(Registries.DENSITY_FUNCTION, ModDimensions::bootstrapDensityFunctions)
             ;
 
     static void registerRegistries(NewRegistryEvent event) {

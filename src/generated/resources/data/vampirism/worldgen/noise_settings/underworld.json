@@ -21,7 +21,7 @@
     "erosion": {
       "type": "minecraft:cache_2d",
       "argument": {
-        "type": "minecraft:end_islands"
+        "type": "vampirism:underworld"
       }
     },
     "final_density": {
@@ -63,7 +63,7 @@
                       "argument2": {
                         "type": "minecraft:add",
                         "argument1": 23.4375,
-                        "argument2": "minecraft:end/sloped_cheese"
+                        "argument2": "vampirism:underworld"
                       }
                     }
                   }
@@ -112,7 +112,7 @@
                   "argument2": {
                     "type": "minecraft:cache_2d",
                     "argument": {
-                      "type": "minecraft:end_islands"
+                      "type": "vampirism:underworld"
                     }
                   }
                 }
@@ -123,7 +123,7 @@
       }
     },
     "lava": 0.0,
-    "ridges": 0.0,
+    "ridges": "minecraft:overworld/ridges",
     "temperature": 0.0,
     "vegetation": {
       "type": "minecraft:shifted_noise",

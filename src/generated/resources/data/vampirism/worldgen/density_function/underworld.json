@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:add",
+  "argument1": {
+    "type": "vampirism:underworld"
+  },
+  "argument2": "vampirism:base_3d_noise"
+}
