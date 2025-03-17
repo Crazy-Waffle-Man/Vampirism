@@ -20,5 +20,6 @@ public interface ISkillPlayer<T extends ISkillPlayer<T>> extends IFactionPlayer<
     @NotNull
     ISkillHandler<T> getSkillHandler();
 
+    @NotNull
     IActionHandler<T> getActionHandler();
 }

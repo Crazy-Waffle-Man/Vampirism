@@ -20,15 +20,7 @@ import org.jetbrains.annotations.Nullable;
  * Interface for the player vampire data.
  * Attached to all players as capability
  */
-public interface IVampirePlayer extends IVampire, IFactionPlayer<IVampirePlayer>, IBiteableEntity, ISkillPlayer<IVampirePlayer>, ITaskPlayer<IVampirePlayer>, IRefinementPlayer<IVampirePlayer> {
-
-    /**
-     * Force enables the vision
-     * Does NOT unlock the vision
-     *
-     * @param vision Null to disable all
-     */
-    void activateVision(@Nullable IVampireVision vision);
+public interface IVampirePlayer extends IVampire, IFactionPlayer<IVampirePlayer>, IBiteableEntity, ISkillPlayer<IVampirePlayer>, ITaskPlayer<IVampirePlayer>, IRefinementPlayer<IVampirePlayer>, IVampireVisionUser {
 
     /**
      * Increases exhaustion level by supplied amount
@@ -51,23 +43,11 @@ public interface IVampirePlayer extends IVampire, IFactionPlayer<IVampirePlayer>
     @NotNull
     BITE_TYPE determineBiteType(LivingEntity entity);
 
-    /**
-     * @return The players vampire skill handler
-     */
-    @NotNull
-    IActionHandler<IVampirePlayer> getActionHandler();
-
     @Override
     @NotNull
     default Holder<? extends IPlayableFaction<IVampirePlayer>> getFaction() {
         return VampirismFactions.VAMPIRE;
     }
-
-    /**
-     * @return The currently active vision. May be null
-     */
-    @Nullable
-    IVampireVision getActiveVision();
 
     int getBloodLevel();
 
@@ -95,17 +75,6 @@ public interface IVampirePlayer extends IVampire, IFactionPlayer<IVampirePlayer>
      * @return Whether death event should be canceled
      */
     boolean onDeadlyHit(DamageSource source);
-
-    /**
-     * Locks the vision again, preventing the player from using it
-     */
-    void unUnlockVision(@NotNull IVampireVision vision);
-
-    /**
-     * Unlocks the given vision, so the player can activate it.
-     * Is not saved to nbt
-     */
-    void unlockVision(@NotNull IVampireVision vision);
 
     /**
      * updates attributes of all minions
