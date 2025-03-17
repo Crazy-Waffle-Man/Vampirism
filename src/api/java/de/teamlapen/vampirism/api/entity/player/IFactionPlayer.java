@@ -1,5 +1,6 @@
 package de.teamlapen.vampirism.api.entity.player;
 
+import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.api.entity.factions.IDisguise;
 import de.teamlapen.vampirism.api.entity.factions.IFactionEntity;
 import de.teamlapen.vampirism.api.entity.factions.IFactionPlayerHandler;
@@ -7,8 +8,10 @@ import de.teamlapen.vampirism.api.entity.factions.IPlayableFaction;
 import de.teamlapen.vampirism.api.extensions.IPlayer;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -20,6 +23,11 @@ import java.util.function.Predicate;
  * If you are writing an addon and not a standalone mod, consider extending FactionPlayerBase instead of implementing this
  */
 public interface IFactionPlayer<T extends IFactionPlayer<T>> extends IFactionEntity, IPlayer {
+
+    static <T extends IFactionPlayer<T>> Optional<T> get(Player player) {
+        return VampirismAPI.factionPlayerHandler(player).getCurrentFactionPlayer();
+    }
+
     /**
      * Mostly relevant in the set level command
      * Vampirism's factions always return true here.

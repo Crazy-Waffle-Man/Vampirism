@@ -2,20 +2,27 @@ package de.teamlapen.vampirism.api.entity.player.actions;
 
 
 import com.google.common.collect.ImmutableList;
+import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.api.annotations.FloatRange;
 import de.teamlapen.vampirism.api.entity.player.IFactionPlayer;
 import de.teamlapen.vampirism.api.entity.player.ISkillPlayer;
 import net.minecraft.core.Holder;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Interface for player's faction's action handler
  */
 public interface IActionHandler<T extends IFactionPlayer<T> & ISkillPlayer<T>> {
+
+    static <T extends IFactionPlayer<T> & ISkillPlayer<T>> Optional<IActionHandler<T>> get(Player player) {
+        return VampirismAPI.factionPlayerHandler(player).getActionHandler();
+    }
 
     /**
      * Deactivate any active action and start cooldown timer
