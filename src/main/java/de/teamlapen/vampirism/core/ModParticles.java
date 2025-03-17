@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.core;
 
 import com.mojang.serialization.MapCodec;
+import de.teamlapen.lib.lib.util.RegisterHelper;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.particle.FlyingBloodEntityParticleOptions;
 import de.teamlapen.vampirism.particle.FlyingBloodParticleOptions;
@@ -21,41 +22,9 @@ import org.jetbrains.annotations.NotNull;
 public class ModParticles {
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(Registries.PARTICLE_TYPE, REFERENCE.MODID);
 
-    public static final DeferredHolder<ParticleType<?>, ParticleType<FlyingBloodParticleOptions>> FLYING_BLOOD = PARTICLE_TYPES.register("flying_blood", () -> new ParticleType<>(false) {
-        @Override
-        public @NotNull MapCodec<FlyingBloodParticleOptions> codec() {
-            return FlyingBloodParticleOptions.CODEC;
-        }
-
-        @Override
-        public @NotNull StreamCodec<? super RegistryFriendlyByteBuf, FlyingBloodParticleOptions> streamCodec() {
-            return FlyingBloodParticleOptions.STREAM_CODEC;
-        }
-    });
-    public static final DeferredHolder<ParticleType<?>, ParticleType<FlyingBloodEntityParticleOptions>> FLYING_BLOOD_ENTITY = PARTICLE_TYPES.register("flying_blood_entity", () -> new ParticleType<>(false) {
-
-        @Override
-        public @NotNull MapCodec<FlyingBloodEntityParticleOptions> codec() {
-            return FlyingBloodEntityParticleOptions.CODEC;
-        }
-
-        @Override
-        public @NotNull StreamCodec<? super RegistryFriendlyByteBuf, FlyingBloodEntityParticleOptions> streamCodec() {
-            return FlyingBloodEntityParticleOptions.STREAM_CODEC;
-        }
-    });
-    public static final DeferredHolder<ParticleType<?>, ParticleType<GenericParticleOptions>> GENERIC = PARTICLE_TYPES.register("generic", () -> new ParticleType<>(false) {
-
-        @Override
-        public @NotNull MapCodec<GenericParticleOptions> codec() {
-            return GenericParticleOptions.CODEC;
-        }
-
-        @Override
-        public @NotNull StreamCodec<? super RegistryFriendlyByteBuf, GenericParticleOptions> streamCodec() {
-            return GenericParticleOptions.STREAM_CODEC;
-        }
-    });
+    public static final DeferredHolder<ParticleType<?>, ParticleType<FlyingBloodParticleOptions>> FLYING_BLOOD = PARTICLE_TYPES.register("flying_blood", () -> RegisterHelper.particleType(false, FlyingBloodParticleOptions.CODEC, FlyingBloodParticleOptions.STREAM_CODEC));
+    public static final DeferredHolder<ParticleType<?>, ParticleType<FlyingBloodEntityParticleOptions>> FLYING_BLOOD_ENTITY = PARTICLE_TYPES.register("flying_blood_entity", () -> RegisterHelper.particleType(false, FlyingBloodEntityParticleOptions.CODEC,FlyingBloodEntityParticleOptions.STREAM_CODEC));
+    public static final DeferredHolder<ParticleType<?>, ParticleType<GenericParticleOptions>> GENERIC = PARTICLE_TYPES.register("generic", () -> RegisterHelper.particleType(false, GenericParticleOptions.CODEC,GenericParticleOptions.STREAM_CODEC));
 
     static void register(IEventBus bus) {
         PARTICLE_TYPES.register(bus);
