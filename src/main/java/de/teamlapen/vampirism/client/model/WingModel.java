@@ -1,83 +1,396 @@
 package de.teamlapen.vampirism.client.model;
 
-import com.google.common.collect.ImmutableList;
+import de.teamlapen.vampirism.api.entity.player.vampire.IWingsEntity;
+import de.teamlapen.vampirism.client.renderer.entity.state.IVampireWingsRenderState;
+import net.minecraft.client.animation.AnimationChannel;
+import net.minecraft.client.animation.AnimationDefinition;
+import net.minecraft.client.animation.Keyframe;
+import net.minecraft.client.animation.KeyframeAnimations;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
-import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
-import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
 
 
 public class WingModel<T extends HumanoidRenderState> extends EntityModel<T> {
-    private static final String WING_RIGHT = "wing_right";
-    private static final String WING_RIGHT2 = "wing_right2";
-    private static final String WING_LEFT = "wing_left";
-    private static final String WING_LEFT2 = "wing_left2";
+    private static final String WINGS = "wings";
+    private static final String RIGHT_WING = "right_wings";
+    private static final String OUTER_RIGHT_WING = "outer_right_wing";
+    private static final String LEFT_WING = "left_wing";
+    private static final String OUTER_LEFT_WING = "outer_left_wing";
 
-    public final @NotNull ModelPart wingRight;
-    public final @NotNull ModelPart wingLeft;
-    public final @NotNull ModelPart wingRight2;
-    public final @NotNull ModelPart wingLeft2;
-
-    public static @NotNull LayerDefinition createLayer() {
-        MeshDefinition mesh = new MeshDefinition();
-        PartDefinition part = mesh.getRoot();
-        PartDefinition wingr = part.addOrReplaceChild(WING_RIGHT, CubeListBuilder.create().texOffs(0, 46).addBox(-18, -6, 0, 18, 18, 0), PartPose.offsetAndRotation(0.2f, 2.5f, 2, 0.136659280431156F, 0.5462880558742251F, 0.27314402793711257F));
-        wingr.addOrReplaceChild(WING_RIGHT2, CubeListBuilder.create().texOffs(0, 28).addBox(-16, -4, 0, 16, 18, 0), PartPose.offsetAndRotation(-18, -2, 0, 0.0F, -0.8196066167365371F, 0.0F));
-        PartDefinition wingl = part.addOrReplaceChild(WING_LEFT, CubeListBuilder.create().texOffs(0, 46).mirror().addBox(0, -6, 0, 18, 18, 0), PartPose.offsetAndRotation(-0.2f, -2.5f, 2, 0.136659280431156F, -0.6373942428283291F, -0.27314402793711257F));
-        wingl.addOrReplaceChild(WING_LEFT2, CubeListBuilder.create().texOffs(0, 28).mirror().addBox(0, -4, 0, 16, 18, 0), PartPose.offsetAndRotation(18, -2, 0, 0, 0.8196066167365371F, 0));
-
-        return LayerDefinition.create(mesh, 128, 64);
-    }
-
+    public final @NotNull ModelPart wings;
+    public final @NotNull ModelPart rightWing;
+    public final @NotNull ModelPart leftWing;
+    public final @NotNull ModelPart outerRightWing;
+    public final @NotNull ModelPart outerLeftWing;
 
     public WingModel(@NotNull ModelPart part) {
         super(part);
-        wingRight = part.getChild(WING_RIGHT);
-        wingRight2 = wingRight.getChild(WING_RIGHT2);
-        wingLeft = part.getChild(WING_LEFT);
-        wingLeft2 = wingLeft.getChild(WING_LEFT2);
+        this.wings = part.getChild(WINGS);
+        this.rightWing = this.wings.getChild(RIGHT_WING);
+        this.outerRightWing = this.rightWing.getChild(OUTER_RIGHT_WING);
+        this.leftWing = this.wings.getChild(LEFT_WING);
+        this.outerLeftWing = this.leftWing.getChild(OUTER_LEFT_WING);
     }
 
     public void copyRotationFromBody(@NotNull ModelPart body) {
-        this.wingLeft.yRot = body.yRot;
-        this.wingLeft2.yRot = body.yRot;
-        this.wingRight.yRot = body.yRot;
-        this.wingRight2.yRot = body.yRot;
-        this.wingLeft.xRot = body.xRot;
-        this.wingRight.xRot = body.xRot;
-        this.wingLeft.zRot = body.zRot;
-        this.wingRight.zRot = body.zRot;
+        this.wings.yRot = body.yRot;
+        this.wings.xRot = body.xRot;
+        this.wings.zRot = body.zRot;
     }
+
 
     @Override
     public void setupAnim(@NotNull T state) {
-        super.setupAnim(state);
-        if (state.isCrouching) {
-            this.wingRight.y = 3.0f;
-            this.wingLeft.y = 3.0f;
-        } else {
-            this.wingRight.y = 2.5f;
-            this.wingLeft.y = 2.5f;
+        IVampireWingsRenderState wingsState = ((IVampireWingsRenderState) state);
+
+        switch (wingsState.vampirism$getWingsState()) {
+            case OPENING -> this.animate(wingsState.vampirism$getGrowingWingsAnimationState(), GROW_ANIMATION, state.ageInTicks, IWingsEntity.GROW_SPEED);
+            case OPEN -> this.animate(wingsState.vampirism$getFlyAnimationState(), IDLE_ANIMATION, state.ageInTicks,1);
+            case FLYING -> this.animate(wingsState.vampirism$getFlyAnimationState(), SWING_ANIMATION, state.ageInTicks,1);
+            case CLOSING -> this.animate(wingsState.vampirism$getGrowingWingsAnimationState(), SHRINK_ANIMATION, state.ageInTicks, IWingsEntity.GROW_SPEED);
+            case CLOSED -> {}
         }
-
-        this.wingLeft.zRot -= (float) (Mth.cos((state.ageInTicks + state.partialTick) * 0.0662F + (float) Math.PI) * 0.06);
-        this.wingRight.zRot += (float) (Mth.cos((state.ageInTicks + state.partialTick) * 0.0662F + (float) Math.PI) * 0.06);
-
-        this.wingLeft.yRot -= 0.3f;
-        this.wingRight.yRot += 0.3f;
     }
 
+
+    public static @NotNull LayerDefinition createLayer() {
+        MeshDefinition meshdefinition = new MeshDefinition();
+        PartDefinition partdefinition = meshdefinition.getRoot();
+
+        PartDefinition wings = partdefinition.addOrReplaceChild(WINGS, CubeListBuilder.create(), PartPose.offset(0.0F, 0, 0.0F));
+
+        PartDefinition left_wing = wings.addOrReplaceChild(LEFT_WING, CubeListBuilder.create().texOffs(0, 23).mirror().addBox(0.0F, -9.0F, 0.0F, 18.0F, 18.0F, 1.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -0.0873F, 0.0F));
+
+        PartDefinition outer_left_wing = left_wing.addOrReplaceChild(OUTER_LEFT_WING, CubeListBuilder.create().texOffs(0, 0).mirror().addBox(0.0F, -9.0F, 0.0F, 16.0F, 18.0F, 1.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(18.0F, 0.0F, 0.0F, 0.0F, 0.1309F, 0.0F));
+
+        PartDefinition outer_left_wing_filler = outer_left_wing.addOrReplaceChild("outer_left_wing_filler", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition outer_left_wing_filler_top = outer_left_wing_filler.addOrReplaceChild("outer_left_wing_filler_top", CubeListBuilder.create().texOffs(11, 1).addBox(0.0F, -9.0F, 0.0F, 5.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(7, 2).addBox(5.0F, -8.0F, 0.0F, 4.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(5, 3).addBox(9.0F, -7.0F, 0.0F, 2.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 4).addBox(11.0F, -6.0F, 0.0F, 2.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(2, 5).addBox(13.0F, -5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(1, 6).addBox(14.0F, -4.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(0, 8).addBox(15.0F, -2.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition outer_left_wing_filler_top_side = outer_left_wing_filler_top.addOrReplaceChild("outer_left_wing_filler_top_side", CubeListBuilder.create().texOffs(11, 0).addBox(5.0F, -9.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(7, 1).addBox(9.0F, -8.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(5, 2).addBox(11.0F, -7.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 3).addBox(13.0F, -6.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(2, 4).addBox(14.0F, -5.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(1, 5).addBox(15.0F, -4.0F, 0.0F, 0.0F, 2.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition outer_left_wing_filler_bottom = outer_left_wing_filler.addOrReplaceChild("outer_left_wing_filler_bottom", CubeListBuilder.create().texOffs(14, 13).addBox(0.0F, 4.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(13, 12).addBox(1.0F, 3.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(12, 14).addBox(2.0F, 5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(11, 17).addBox(3.0F, 8.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(10, 15).addBox(4.0F, 6.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(9, 14).addBox(5.0F, 5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(8, 13).addBox(6.0F, 4.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(7, 12).addBox(7.0F, 3.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(6, 11).addBox(8.0F, 2.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(5, 12).addBox(9.0F, 3.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(4, 13).addBox(10.0F, 4.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 15).addBox(11.0F, 6.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(2, 16).addBox(12.0F, 7.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(1, 18).addBox(13.0F, 9.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(0, 15).addBox(14.0F, 6.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(-1, 12).addBox(15.0F, 3.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition outer_left_wing_filler_bottom_side = outer_left_wing_filler_bottom.addOrReplaceChild("outer_left_wing_filler_bottom_side", CubeListBuilder.create().texOffs(16, 12).addBox(1.0F, 3.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(14, 12).addBox(2.0F, 3.0F, 0.0F, 0.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(13, 14).addBox(3.0F, 5.0F, 0.0F, 0.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(12, 15).addBox(4.0F, 6.0F, 0.0F, 0.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(11, 14).addBox(5.0F, 5.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(11, 14).addBox(6.0F, 4.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(11, 14).addBox(7.0F, 3.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(11, 14).addBox(8.0F, 2.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(7, 11).addBox(9.0F, 2.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(7, 11).addBox(10.0F, 3.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(5, 13).addBox(11.0F, 4.0F, 0.0F, 0.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(4, 15).addBox(12.0F, 6.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 16).addBox(13.0F, 7.0F, 0.0F, 0.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(2, 15).addBox(14.0F, 6.0F, 0.0F, 0.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(1, 12).addBox(15.0F, 3.0F, 0.0F, 0.0F, 3.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition left_wing_filler = left_wing.addOrReplaceChild("left_wing_filler", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition left_wing_filler_top = left_wing_filler.addOrReplaceChild("left_wing_filler_top", CubeListBuilder.create().texOffs(17, 28).addBox(0.0F, -5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(16, 29).addBox(1.0F, -4.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(15, 30).addBox(2.0F, -3.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(14, 29).addBox(3.0F, -4.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(13, 28).addBox(4.0F, -5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(12, 27).addBox(5.0F, -6.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(10, 26).addBox(6.0F, -7.0F, 0.0F, 2.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(6, 25).addBox(8.0F, -8.0F, 0.0F, 4.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(0, 24).addBox(12.0F, -9.0F, 0.0F, 6.0F, 0.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition left_wing_filler_top_side = left_wing_filler_top.addOrReplaceChild("left_wing_filler_top_side", CubeListBuilder.create().texOffs(17, 27).addBox(1.0F, -5.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(16, 28).addBox(2.0F, -4.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(15, 28).addBox(3.0F, -4.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(14, 27).addBox(4.0F, -5.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(13, 26).addBox(5.0F, -6.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(12, 25).addBox(6.0F, -7.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(10, 24).addBox(8.0F, -8.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(6, 23).addBox(12.0F, -9.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition left_wing_filler_bottom = left_wing_filler.addOrReplaceChild("left_wing_filler_bottom", CubeListBuilder.create().texOffs(16, 38).addBox(0.0F, 6.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(15, 39).addBox(1.0F, 7.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(14, 40).addBox(2.0F, 8.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(13, 41).addBox(3.0F, 9.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(12, 40).addBox(4.0F, 8.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(9, 39).addBox(5.0F, 7.0F, 0.0F, 2.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(7, 38).addBox(7.0F, 6.0F, 0.0F, 2.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(7, 37).addBox(9.0F, 5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(6, 36).addBox(10.0F, 4.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(5, 37).addBox(11.0F, 5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(4, 38).addBox(12.0F, 6.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 41).addBox(13.0F, 9.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(2, 39).addBox(14.0F, 7.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(1, 38).addBox(15.0F, 6.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(0, 37).addBox(16.0F, 5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(-1, 37).addBox(17.0F, 5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition left_wing_filler_bottom_side = left_wing_filler_bottom.addOrReplaceChild("left_wing_filler_bottom_side", CubeListBuilder.create().texOffs(17, 38).addBox(1.0F, 6.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(16, 39).addBox(2.0F, 7.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(15, 40).addBox(3.0F, 8.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(14, 40).addBox(4.0F, 8.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(13, 39).addBox(5.0F, 7.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(11, 38).addBox(7.0F, 6.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(9, 37).addBox(9.0F, 5.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(8, 36).addBox(10.0F, 4.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(7, 36).addBox(11.0F, 4.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(6, 37).addBox(12.0F, 5.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(5, 38).addBox(13.0F, 6.0F, 0.0F, 0.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(4, 38).addBox(14.0F, 7.0F, 0.0F, 0.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 38).addBox(15.0F, 6.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 38).addBox(16.0F, 5.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition right_wing = wings.addOrReplaceChild(RIGHT_WING, CubeListBuilder.create().texOffs(0, 23).addBox(-18.0F, -9.0F, 0.0F, 18.0F, 18.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 0.0873F, 0.0F));
+
+        PartDefinition outer_right_wing = right_wing.addOrReplaceChild(OUTER_RIGHT_WING, CubeListBuilder.create().texOffs(0, 0).addBox(-16.0F, -9.0F, 0.0F, 16.0F, 18.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-18.0F, 0.0F, 0.0F, 0.0F, -0.1309F, 0.0F));
+
+        PartDefinition outer_right_wing_filler = outer_right_wing.addOrReplaceChild("outer_right_wing_filler", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition outer_right_wing_filler_top = outer_right_wing_filler.addOrReplaceChild("outer_right_wing_filler_top", CubeListBuilder.create().texOffs(17, 1).addBox(-5.0F, -9.0F, 0.0F, 5.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(22, 2).addBox(-9.0F, -8.0F, 0.0F, 4.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(26, 3).addBox(-11.0F, -7.0F, 0.0F, 2.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(28, 4).addBox(-13.0F, -6.0F, 0.0F, 2.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(30, 5).addBox(-14.0F, -5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(31, 6).addBox(-15.0F, -4.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(32, 8).addBox(-16.0F, -2.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition outer_right_wing_filler_side = outer_right_wing_filler_top.addOrReplaceChild("outer_right_wing_filler_side", CubeListBuilder.create().texOffs(22, 0).addBox(-5.0F, -9.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(26, 1).addBox(-9.0F, -8.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(28, 2).addBox(-11.0F, -7.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(30, 3).addBox(-13.0F, -6.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(31, 4).addBox(-14.0F, -5.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(32, 5).addBox(-15.0F, -4.0F, 0.0F, 0.0F, 2.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition outer_right_wing_filler_bottom = outer_right_wing_filler.addOrReplaceChild("outer_right_wing_filler_bottom", CubeListBuilder.create().texOffs(16, 13).addBox(-1.0F, -9.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(17, 12).addBox(-2.0F, -10.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(18, 14).addBox(-3.0F, -8.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(19, 17).addBox(-4.0F, -5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(20, 15).addBox(-5.0F, -7.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(21, 14).addBox(-6.0F, -8.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(22, 13).addBox(-7.0F, -9.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(23, 12).addBox(-8.0F, -10.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(24, 11).addBox(-9.0F, -11.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(25, 12).addBox(-10.0F, -10.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(26, 13).addBox(-11.0F, -9.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(27, 15).addBox(-12.0F, -7.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(28, 16).addBox(-13.0F, -6.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(29, 17).addBox(-14.0F, -4.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(30, 15).addBox(-15.0F, -7.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(31, 12).addBox(-16.0F, -10.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 13.0F, 0.0F));
+
+        PartDefinition outer_right_wing_filler_side2 = outer_right_wing_filler_bottom.addOrReplaceChild("outer_right_wing_filler_side2", CubeListBuilder.create().texOffs(18, 12).addBox(-1.0F, -10.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(19, 12).addBox(-2.0F, -10.0F, 0.0F, 0.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(20, 14).addBox(-3.0F, -8.0F, 0.0F, 0.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(21, 15).addBox(-4.0F, -7.0F, 0.0F, 0.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(22, 14).addBox(-5.0F, -8.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(23, 13).addBox(-6.0F, -9.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(24, 12).addBox(-7.0F, -10.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(25, 11).addBox(-8.0F, -11.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(26, 11).addBox(-9.0F, -11.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(27, 12).addBox(-10.0F, -10.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(28, 13).addBox(-11.0F, -9.0F, 0.0F, 0.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(29, 15).addBox(-12.0F, -7.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(30, 16).addBox(-13.0F, -6.0F, 0.0F, 0.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(31, 15).addBox(-14.0F, -7.0F, 0.0F, 0.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(32, 12).addBox(-15.0F, -10.0F, 0.0F, 0.0F, 3.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition right_wing_filler = right_wing.addOrReplaceChild("right_wing_filler", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition right_wing_filler_top = right_wing_filler.addOrReplaceChild("right_wing_filler_top", CubeListBuilder.create().texOffs(19, 28).addBox(-1.0F, -5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(20, 29).addBox(-2.0F, -4.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(21, 30).addBox(-3.0F, -3.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(22, 29).addBox(-4.0F, -4.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(23, 28).addBox(-5.0F, -5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(24, 27).addBox(-6.0F, -6.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(25, 26).addBox(-8.0F, -7.0F, 0.0F, 2.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(27, 25).addBox(-12.0F, -8.0F, 0.0F, 4.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(31, 24).addBox(-18.0F, -9.0F, 0.0F, 6.0F, 0.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition right_wing_filler_top_side = right_wing_filler_top.addOrReplaceChild("right_wing_filler_top_side", CubeListBuilder.create().texOffs(20, 27).addBox(-1.0F, -5.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(21, 28).addBox(-2.0F, -4.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(22, 28).addBox(-3.0F, -4.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(23, 27).addBox(-4.0F, -5.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(24, 26).addBox(-5.0F, -6.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(25, 25).addBox(-6.0F, -7.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(27, 24).addBox(-8.0F, -8.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(31, 23).addBox(-12.0F, -9.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition right_wing_filler_bottom = right_wing_filler.addOrReplaceChild("right_wing_filler_bottom", CubeListBuilder.create().texOffs(18, 38).addBox(-1.0F, 6.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(19, 39).addBox(-2.0F, 7.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(20, 40).addBox(-3.0F, 8.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(21, 41).addBox(-4.0F, 9.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(22, 40).addBox(-5.0F, 8.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(22, 39).addBox(-7.0F, 7.0F, 0.0F, 2.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(24, 38).addBox(-9.0F, 6.0F, 0.0F, 2.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(27, 37).addBox(-10.0F, 5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(28, 36).addBox(-11.0F, 4.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(29, 37).addBox(-12.0F, 5.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(30, 38).addBox(-13.0F, 6.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(31, 41).addBox(-14.0F, 9.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(32, 39).addBox(-15.0F, 7.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(33, 38).addBox(-16.0F, 6.0F, 0.0F, 1.0F, 0.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(33, 37).addBox(-18.0F, 5.0F, 0.0F, 2.0F, 0.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        PartDefinition right_wing_filler_bottom_side = right_wing_filler_bottom.addOrReplaceChild("right_wing_filler_bottom_side", CubeListBuilder.create().texOffs(20, 38).addBox(-1.0F, 6.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(21, 39).addBox(-2.0F, 7.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(22, 40).addBox(-3.0F, 8.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(23, 40).addBox(-4.0F, 8.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(24, 39).addBox(-5.0F, 7.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(26, 38).addBox(-7.0F, 6.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(28, 37).addBox(-9.0F, 5.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(29, 36).addBox(-10.0F, 4.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(30, 36).addBox(-11.0F, 4.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(31, 37).addBox(-12.0F, 5.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(32, 38).addBox(-13.0F, 6.0F, 0.0F, 0.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(33, 39).addBox(-14.0F, 7.0F, 0.0F, 0.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(34, 38).addBox(-15.0F, 6.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(35, 37).addBox(-16.0F, 5.0F, 0.0F, 0.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+        return LayerDefinition.create(meshdefinition, 64, 64);
+    }
+
+    public static final AnimationDefinition SWING_ANIMATION = AnimationDefinition.Builder.withLength(4.0F).looping()
+            .addAnimation(LEFT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(2.0F, KeyframeAnimations.degreeVec(0.0F, -40.0F, -10.0F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(4.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+            ))
+            .addAnimation(RIGHT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(2.0F, KeyframeAnimations.degreeVec(0.0F, 40.0F, 10.0F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(4.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+            ))
+            .addAnimation(OUTER_LEFT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 18.39F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.25F, KeyframeAnimations.degreeVec(0.0F, 20.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(2.25F, KeyframeAnimations.degreeVec(0.0F, -24.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(4.0F, KeyframeAnimations.degreeVec(0.0F, 18.39F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+            ))
+            .addAnimation(OUTER_RIGHT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, -18.47F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.25F, KeyframeAnimations.degreeVec(0.0F, -20.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(2.25F, KeyframeAnimations.degreeVec(0.0F, 20.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(4.0F, KeyframeAnimations.degreeVec(0.0F, -18.47F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+            ))
+            .build();
+
+    public static final AnimationDefinition GROW_ANIMATION = AnimationDefinition.Builder.withLength(IWingsEntity.GROW_SECONDS)
+            .addAnimation(WINGS, new AnimationChannel(AnimationChannel.Targets.SCALE,
+                    new Keyframe(0.0F, KeyframeAnimations.scaleVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.0833F, KeyframeAnimations.scaleVec(0.16F, 0.16F, 0.16F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.1667F, KeyframeAnimations.scaleVec(0.4F, 0.4F, 0.4F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.3333F, KeyframeAnimations.scaleVec(0.8F, 0.8F, 0.8F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.4167F, KeyframeAnimations.scaleVec(0.94F, 0.94F, 0.94F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.5F, KeyframeAnimations.scaleVec(1.0F, 1.0F, 1.0F), AnimationChannel.Interpolations.LINEAR)
+            ))
+            .addAnimation(LEFT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, -75.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.25F, KeyframeAnimations.degreeVec(0.0F, -75.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)
+            ))
+            .addAnimation(RIGHT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 75.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.25F, KeyframeAnimations.degreeVec(0.0F, 75.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)
+            ))
+            .addAnimation(OUTER_LEFT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 125.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.25F, KeyframeAnimations.degreeVec(0.0F, 125.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)
+            ))
+            .addAnimation(OUTER_RIGHT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, -125.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.25F, KeyframeAnimations.degreeVec(0.0F, -125.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)
+            ))
+            .build();
+
+    public static final AnimationDefinition SHRINK_ANIMATION = AnimationDefinition.Builder.withLength(IWingsEntity.GROW_SECONDS)
+            .addAnimation(WINGS, new AnimationChannel(AnimationChannel.Targets.SCALE,
+                    new Keyframe(0.5F, KeyframeAnimations.scaleVec(1.0F, 1.0F, 1.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.5833F, KeyframeAnimations.scaleVec(0.94F, 0.94F, 0.94F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.6667F, KeyframeAnimations.scaleVec(0.8F, 0.8F, 0.8F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.8333F, KeyframeAnimations.scaleVec(0.2F, 0.2F, 0.2F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.9167F, KeyframeAnimations.scaleVec(0.06F, 0.06F, 0.06F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(1.0F, KeyframeAnimations.scaleVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+            ))
+            .addAnimation(LEFT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.75F, KeyframeAnimations.degreeVec(0.0F, -75.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, -75.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+            ))
+            .addAnimation(RIGHT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.75F, KeyframeAnimations.degreeVec(0.0F, 75.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, 75.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+            ))
+            .addAnimation(OUTER_LEFT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.75F, KeyframeAnimations.degreeVec(0.0F, 125.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, 125.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+            ))
+            .addAnimation(OUTER_RIGHT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(0.75F, KeyframeAnimations.degreeVec(0.0F, -125.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, -125.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+            ))
+            .build();
+
+    public static final AnimationDefinition IDLE_ANIMATION = AnimationDefinition.Builder.withLength(4.0F).looping()
+            .addAnimation(WINGS, new AnimationChannel(AnimationChannel.Targets.SCALE,
+                    new Keyframe(0.0F, KeyframeAnimations.scaleVec(1.0F, 1.0F, 1.0F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(2.0F, KeyframeAnimations.scaleVec(1.05F, 1.05F, 1.05F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(4.0F, KeyframeAnimations.scaleVec(1.0F, 1.0F, 1.0F), AnimationChannel.Interpolations.CATMULLROM)
+            ))
+            .addAnimation(LEFT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(2.0F, KeyframeAnimations.degreeVec(0.0F, -12.0F, -1.0F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(4.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)
+            ))
+            .addAnimation(OUTER_LEFT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(2.0F, KeyframeAnimations.degreeVec(0.0F, 24.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(4.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)
+            ))
+            .addAnimation(RIGHT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(2.0F, KeyframeAnimations.degreeVec(0.0F, 12.0F, 2.0F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(4.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)
+            ))
+            .addAnimation(OUTER_RIGHT_WING, new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(2.0F, KeyframeAnimations.degreeVec(0.0F, -24.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(4.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)
+            ))
+            .build();
 }

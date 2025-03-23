@@ -20,10 +20,7 @@ import de.teamlapen.vampirism.api.entity.factions.IDisguise;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.factions.IPlayableFaction;
 import de.teamlapen.vampirism.api.entity.player.skills.IRefinementHandler;
-import de.teamlapen.vampirism.api.entity.player.vampire.IBloodStats;
-import de.teamlapen.vampirism.api.entity.player.vampire.IDrinkBloodContext;
-import de.teamlapen.vampirism.api.entity.player.vampire.IVampirePlayer;
-import de.teamlapen.vampirism.api.entity.player.vampire.IVampireVision;
+import de.teamlapen.vampirism.api.entity.player.vampire.*;
 import de.teamlapen.vampirism.api.entity.vampire.IVampire;
 import de.teamlapen.vampirism.api.event.BloodDrinkEvent;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
@@ -45,6 +42,7 @@ import de.teamlapen.vampirism.entity.player.vampire.actions.VampireActions;
 import de.teamlapen.vampirism.entity.vampire.DrinkBloodContext;
 import de.teamlapen.vampirism.fluids.BloodHelper;
 import de.teamlapen.vampirism.items.HunterArmorItem;
+import de.teamlapen.vampirism.mixin.accessor.AnimationStateAccessor;
 import de.teamlapen.vampirism.mixin.accessor.AttributeInstanceAccessor;
 import de.teamlapen.vampirism.modcompat.PlayerReviveHelper;
 import de.teamlapen.vampirism.network.ServerboundSimpleInputEvent;
@@ -56,6 +54,7 @@ import de.teamlapen.vampirism.world.ModDamageSources;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -123,6 +122,9 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
     private final static String KEY_DBNO_TIMER = "dbno";
     private final static String KEY_DBNO_MSG = "dbno_msg";
     private final static String KEY_WAS_DBNO = "wasDBNO";
+    private final static String KEY_IS_DRACULA = "is_Dracula";
+    private final static String KEY_SHOW_WINGS = "show_wings";
+    private final static String KEY_WINGS_STATE = "wings_state";
 
 
     public static @NotNull VampirePlayer get(@NotNull Player player) {
@@ -170,6 +172,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
     private Component dbnoMessage;
     private final Disguise disguise;
     private final RefinementHandler<IVampirePlayer> refinementHandler;
+    private DraculaData draculaData = new DraculaData();
 
     public VampirePlayer(Player player) {
         super(player);
@@ -532,6 +535,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
         this.bloodStats.deserializeNBT(provider, nbt.getCompound(this.bloodStats.nbtKey()));
         this.vision.deserializeNBT(provider, nbt.getCompound(KEY_VISION));
         this.refinementHandler.deserializeNBT(provider, nbt.getCompound(this.refinementHandler.nbtKey()));
+        this.draculaData.deserializeNBT(provider, nbt.getCompound(this.draculaData.nbtKey()));
         if (nbt.getBoolean(KEY_WAS_DBNO)) {
             this.wasDBNO = true;
         }
@@ -779,6 +783,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
             return;
         }
         super.onUpdate();
+        this.draculaData.update();
         int level = getLevel();
         if (level > 0) {
             if (player.tickCount % REFERENCE.REFRESH_SUNDAMAGE_TICKS == 0) {
@@ -903,6 +908,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
         nbt.putInt(KEY_EYE, getEyeType());
         nbt.putInt(KEY_FANGS, getFangType());
         nbt.putBoolean(KEY_GLOWING_EYES, getGlowingEyes());
+        nbt.put(this.draculaData.nbtKey(), this.draculaData.serializeNBT(provider));
         nbt.put(this.vision.nbtKey(), this.vision.serializeNBT(provider));
         nbt.put(this.refinementHandler.nbtKey(), this.refinementHandler.serializeNBT(provider));
         if (isDBNO()) nbt.putBoolean(KEY_WAS_DBNO, true);
@@ -1116,6 +1122,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
             }
         }
 
+        this.draculaData.updateFromCompound(provider, nbt);
         this.bloodStats.deserializeUpdateNBT(provider, nbt.getCompound(this.bloodStats.nbtKey()));
         this.disguise.deserializeUpdateNBT(provider, nbt.getCompound(this.disguise.nbtKey()));
         this.refinementHandler.deserializeUpdateNBT(provider, nbt.getCompound(this.refinementHandler.nbtKey()));
@@ -1135,6 +1142,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
         this.vision.updateToCompound(provider, nbt, params);
         this.disguise.updateToCompound(provider, nbt, params);
         this.refinementHandler.updateToCompound(provider, nbt, params);
+        this.draculaData.updateToCompound(provider, nbt, params);
         nbt.putInt(KEY_DBNO_TIMER, getDbnoTimer());
         if (dbnoMessage != null) nbt.putString(KEY_DBNO_MSG, Component.Serializer.toJson(dbnoMessage, provider));
         return nbt;
@@ -1250,7 +1258,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
 
     @Override
     public boolean needsUpdate() {
-        return super.needsUpdate() || this.bloodStats.needsUpdate() || this.vision.needsUpdate() || this.disguise.needsUpdate() || this.refinementHandler.needsUpdate();
+        return super.needsUpdate() || this.bloodStats.needsUpdate() || this.vision.needsUpdate() || this.disguise.needsUpdate() || this.refinementHandler.needsUpdate() || this.draculaData.needsUpdate();
     }
 
     /**
@@ -1376,6 +1384,94 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
             HelperLib.sync(minion);
         }));
     }
+
+    //<editor-fold desc="IDraculaPlayer methods">
+    @Override
+    public boolean isLord() {
+        return this.draculaData.isDracula;
+    }
+
+    @Override
+    public void awardTitle() {
+        this.draculaData.makeDracula();
+    }
+
+    @Override
+    public boolean wingsFunctionalOpen() {
+        return switch (this.getWingsState()) {
+            case OPEN, OPENING, FLYING -> true;
+            case CLOSING, CLOSED -> false;
+        };
+    }
+
+    @Override
+    public boolean wingsVisualOpen() {
+        return switch (this.getWingsState()) {
+            case CLOSED -> false;
+            default -> true;
+        };
+    }
+
+    @Override
+    public boolean showWings() {
+        return this.draculaData.openWings();
+    }
+
+    @Override
+    public void hideWings() {
+        this.draculaData.closeWings();
+    }
+
+    public void toggleWings() {
+        this.draculaData.toggleWings();
+    }
+
+    public void resetDracula() {
+        this.draculaData = new DraculaData();
+    }
+
+    @Override
+    public void swingWings() {
+        if (this.draculaData.wingsState != WingsState.FLYING) {
+            return;
+        }
+        Vec3 lookAngle = player.getLookAngle();
+        Vec3 deltaMovement = player.getDeltaMovement();
+        double speed = deltaMovement.lengthSqr();
+        double speedMultiplier = Math.clamp(speed, 0, 1);
+
+        var newDeltaMovement = deltaMovement
+                .add(new Vec3(
+                                lookAngle.x * 0.1 + (lookAngle.x * 1.5 - deltaMovement.x) * 0.5,
+                                lookAngle.y * 0.1 + (lookAngle.y * 1.5 - deltaMovement.y) * 0.5,
+                                lookAngle.z * 0.1 + (lookAngle.z * 1.5 - deltaMovement.z) * 0.5
+                        ).scale(speedMultiplier)
+                ).add(0, 0.1, 0);
+
+        if (newDeltaMovement.lengthSqr() > 1) {
+            newDeltaMovement = newDeltaMovement.normalize().scale(deltaMovement.length());
+        }
+
+        this.player.setDeltaMovement(newDeltaMovement);
+        this.draculaData.flyAnimationState.fastForward(5, 1);
+    }
+
+    @Override
+    public AnimationState flyAnimation() {
+        return this.draculaData.flyAnimationState;
+    }
+
+    @Override
+    public AnimationState growAnimation() {
+        return this.draculaData.growAnimationState;
+    }
+
+    @Override
+    public WingsState getWingsState() {
+        return this.draculaData.wingsState;
+    }
+
+    //</editor-fold>
 
     private class VisionStatus implements ISyncableSaveData {
         private static final String KEY_VISION = "vision";
@@ -1564,6 +1660,179 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
         public boolean needsUpdate() {
             return this.isDirty;
         }
+    }
+
+    private class DraculaData implements ISyncableSaveData {
+        private static final String KEY_DRACULA = "dracula";
+
+        private boolean isDracula;
+        private boolean isDirty = true;
+        private final AnimationState flyAnimationState = new AnimationState();
+        private final AnimationState growAnimationState = new AnimationState();
+        private WingsState wingsState = WingsState.CLOSED;
+        private int ticks;
+
+        @Override
+        public @NotNull CompoundTag serializeNBT(HolderLookup.@NotNull Provider provider) {
+            var nbt = new CompoundTag();
+            nbt.putBoolean(KEY_IS_DRACULA, this.isDracula);
+            nbt.putString(KEY_WINGS_STATE, this.wingsState.name());
+            return nbt;
+        }
+
+        @Override
+        public @NotNull CompoundTag serializeUpdateNBTInternal(HolderLookup.@NotNull Provider provider, UpdateParams params) {
+            CompoundTag nbt = new CompoundTag();
+            nbt.putBoolean(KEY_IS_DRACULA, this.isDracula);
+            nbt.putString(KEY_WINGS_STATE, this.wingsState.name());
+            return nbt;
+        }
+
+        @Override
+        public void deserializeNBT(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag nbt) {
+            this.isDracula = nbt.getBoolean(KEY_IS_DRACULA);
+            try {
+                String string = nbt.getString(KEY_WINGS_STATE);
+                this.wingsState = WingsState.valueOf(string);
+            } catch (IllegalArgumentException | NullPointerException e) {
+                this.wingsState = WingsState.CLOSED;
+            }
+        }
+
+        @Override
+        public void deserializeUpdateNBT(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag nbt) {
+            if (nbt.contains(KEY_IS_DRACULA)) {
+                this.isDracula = nbt.getBoolean(KEY_IS_DRACULA);
+            }
+            if (nbt.contains(KEY_WINGS_STATE)) {
+                var string = nbt.getString(KEY_WINGS_STATE);
+                WingsState state;
+                try {
+                    state = WingsState.valueOf(string);
+                } catch (IllegalArgumentException e) {
+                    state = WingsState.CLOSED;
+                }
+                if (state != this.wingsState) {
+                    switchState(state);
+                }
+            }
+        }
+
+        @Override
+        public String nbtKey() {
+            return KEY_DRACULA;
+        }
+
+        public void update() {
+            if (this.isDracula) {
+                this.ticks++;
+                switch (this.wingsState) {
+                    case OPENING -> {
+                        if (ticks > IWingsEntity.GROW_TICKS) {
+                            switchState(WingsState.OPEN);
+                        }
+                        if (player.isFallFlying()) {
+                            switchState(WingsState.FLYING);
+                        }
+                    }
+                    case CLOSING -> {
+                        if (ticks > IWingsEntity.GROW_TICKS) {
+                            switchState(WingsState.CLOSED);
+                        }
+                    }
+                    case OPEN -> {
+                        if (player.isFallFlying()) {
+                            switchState(WingsState.FLYING);
+                        }
+                    }
+                    case FLYING -> {
+                        if (!player.isFallFlying()) {
+                            switchState(WingsState.OPEN);
+                        }
+                    }
+                }
+                updateAnimations();
+            }
+        }
+
+        private void updateAnimations() {
+            switch (this.wingsState) {
+                case OPENING, CLOSING -> this.growAnimationState.startIfStopped(player.tickCount);
+                case OPEN, FLYING -> this.flyAnimationState.startIfStopped(player.tickCount);
+                case CLOSED -> {
+                    this.flyAnimationState.stop();
+                    this.growAnimationState.stop();
+                }
+            }
+        }
+
+        public boolean openWings() {
+            if (this.isDracula) {
+                switchState(WingsState.OPENING);
+                this.isDirty = true;
+                player.tryToStartFallFlying();
+                return true;
+            }
+            return false;
+        }
+
+        public void closeWings() {
+            switchState(WingsState.CLOSING);
+            this.isDirty = true;
+        }
+
+        public void toggleWings() {
+            if (player.getItemBySlot(EquipmentSlot.CHEST).has(DataComponents.GLIDER)) {
+                return;
+            }
+            switch (this.wingsState) {
+                case OPENING, OPEN, FLYING -> this.closeWings();
+                case CLOSING, CLOSED -> this.openWings();
+            }
+        }
+
+        private void switchState(WingsState state) {
+            this.wingsState = state;
+            this.ticks = 0;
+            switch (state) {
+                case OPEN ->  {
+                    this.flyAnimationState.start(player.tickCount);
+                    this.growAnimationState.stop();
+                }
+                case CLOSED -> {
+                    this.flyAnimationState.stop();
+                    this.growAnimationState.stop();
+                }
+                case OPENING, CLOSING -> {
+                    int startTicks = player.tickCount;
+                    int currentTicks = ((AnimationStateAccessor) this.growAnimationState).getStartTick();
+                    if (currentTicks != Integer.MIN_VALUE) {
+                        int div = startTicks - currentTicks;
+                        if (div < IWingsEntity.GROW_TICKS) {
+                            startTicks -= (int) IWingsEntity.GROW_TICKS - div;
+                        }
+                    }
+                    this.growAnimationState.start(startTicks);
+                    this.flyAnimationState.stop();
+                }
+            }
+        }
+
+        @Override
+        public boolean needsUpdate() {
+            return this.isDirty;
+        }
+
+        @Override
+        public void updateSend() {
+            this.isDirty = false;
+        }
+
+        public void makeDracula() {
+            this.isDracula = true;
+            this.isDirty = true;
+        }
+
     }
 
 

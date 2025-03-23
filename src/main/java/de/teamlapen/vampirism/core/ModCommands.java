@@ -50,6 +50,7 @@ public class ModCommands {
         for (String s : vampirism) {
             dispatcher.register(
                     LiteralArgumentBuilder.<CommandSourceStack>literal(s)
+                            .then(FactionCommand.register(buildContext))
                             .then(BindActionCommand.register(buildContext))
                             .then(AppearanceCommand.register())
                             .then(LevelCommand.register(buildContext))

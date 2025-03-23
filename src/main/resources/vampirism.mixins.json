@@ -27,6 +27,7 @@
     "ThrowableProjectileMixin",
     "VibrationSystemUserMixin",
     "accessor.AbstractContainerMenuAccessor",
+    "accessor.AnimationStateAccessor",
     "accessor.AttributeInstanceAccessor",
     "accessor.BeaconBeamSectionyMixin",
     "accessor.BlockFamiliesAccessor",

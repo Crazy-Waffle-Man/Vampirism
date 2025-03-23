@@ -1,11 +1,14 @@
 package de.teamlapen.vampirism.mixin.client;
 
+import de.teamlapen.vampirism.api.entity.player.vampire.IWingsEntity;
 import de.teamlapen.vampirism.client.renderer.entity.state.*;
 import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.ambient.Bat;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -33,6 +36,14 @@ public class LivingEntityRenderStateMixin implements IVampirismRenderState {
     private Bat vampirism$bat;
     @Unique
     private VampirismPlayerAttributes vampirism$vampirismAttributes;
+    @Unique
+    private boolean vampirism$showWings;
+    @Unique
+    private final AnimationState vampirism$flyAnimationState = new AnimationState();
+    @Unique
+    private final AnimationState vampirism$growingWingsAnimationState = new AnimationState();
+    @Unique
+    private IWingsEntity.WingsState vampirism$wingsState;
 
     @Override
     public @Nullable ResourceLocation vampirism$overlay() {
@@ -133,4 +144,25 @@ public class LivingEntityRenderStateMixin implements IVampirismRenderState {
     public void vampirism$bat(Bat bat) {
         this.vampirism$bat = bat;
     }
+
+    @Override
+    public @NotNull AnimationState vampirism$getFlyAnimationState() {
+        return this.vampirism$flyAnimationState;
+    }
+
+    @Override
+    public @NotNull AnimationState vampirism$getGrowingWingsAnimationState() {
+        return this.vampirism$growingWingsAnimationState;
+    }
+
+    @Override
+    public void vampirism$setWingsState(IWingsEntity.@NotNull WingsState wingsState) {
+        this.vampirism$wingsState = wingsState;
+    }
+
+    @Override
+    public IWingsEntity.@NotNull WingsState vampirism$getWingsState() {
+        return this.vampirism$wingsState;
+    }
+
 }

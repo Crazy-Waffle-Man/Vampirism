@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import de.teamlapen.vampirism.api.entity.player.vampire.IWingsEntity;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.client.core.ModEntitiesRender;
 import de.teamlapen.vampirism.client.model.BaronBaseModel;
@@ -8,9 +9,8 @@ import de.teamlapen.vampirism.client.model.BaronModel;
 import de.teamlapen.vampirism.client.model.BaronessModel;
 import de.teamlapen.vampirism.client.renderer.entity.layers.BaronAttireLayer;
 import de.teamlapen.vampirism.client.renderer.entity.layers.WingsLayer;
+import de.teamlapen.vampirism.client.renderer.entity.state.IVampireWingsRenderState;
 import de.teamlapen.vampirism.entity.vampire.VampireBaronEntity;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
@@ -18,9 +18,6 @@ import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.AnimationState;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.Map;
 
 public class VampireBaronRenderer extends MobRenderer<VampireBaronEntity, VampireBaronRenderer.VampireBaronRenderState, BaronBaseModel> {
 
@@ -36,7 +33,7 @@ public class VampireBaronRenderer extends MobRenderer<VampireBaronEntity, Vampir
         super(context, new BaronModel(context.bakeLayer(ModEntitiesRender.BARON)), 0.5F);
         this.baronModel = new BaronModel(context.bakeLayer(ModEntitiesRender.BARON));
         this.baronessModel = new BaronessModel(context.bakeLayer(ModEntitiesRender.BARONESS));
-        this.addLayer(new WingsLayer<>(this, context.getModelSet(), vampireBaronEntity -> true, (entity, model) -> model.getBody()));
+        this.addLayer(new WingsLayer<>(this, context.getModelSet(), (entity, model) -> model.getBody()));
         this.addLayer(new BaronAttireLayer(this, context, (VampireBaronRenderState state) -> state.isLady ));
     }
 
@@ -65,10 +62,34 @@ public class VampireBaronRenderer extends MobRenderer<VampireBaronEntity, Vampir
         state.enragedProgress = entity.getEnragedProgress();
     }
 
-    public static class VampireBaronRenderState extends HumanoidRenderState {
+    public static class VampireBaronRenderState extends HumanoidRenderState implements IVampireWingsRenderState {
         public boolean isEnraged;
         public boolean isLady;
         public float enragedProgress;
-        public AnimationState cloakState = new AnimationState();
+        public final AnimationState cloakState = new AnimationState();
+        public final AnimationState flyState = new AnimationState();
+        public final AnimationState growingWingsState = new AnimationState();
+        public IWingsEntity.WingsState wingsState = IWingsEntity.WingsState.CLOSED;
+
+        @Override
+        public @NotNull AnimationState vampirism$getFlyAnimationState() {
+            return this.flyState;
+        }
+
+        @Override
+        public @NotNull AnimationState vampirism$getGrowingWingsAnimationState() {
+            return this.growingWingsState;
+        }
+
+        @Override
+        public void vampirism$setWingsState(IWingsEntity.@NotNull WingsState wingsState) {
+            this.wingsState = wingsState;
+        }
+
+        @Override
+        public IWingsEntity.@NotNull WingsState vampirism$getWingsState() {
+            return this.wingsState;
+        }
+
     }
 }

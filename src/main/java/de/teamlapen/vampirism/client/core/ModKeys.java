@@ -6,6 +6,7 @@ import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.player.IFactionPlayer;
 import de.teamlapen.vampirism.api.entity.player.actions.IAction;
+import de.teamlapen.vampirism.api.entity.player.vampire.IDraculaPlayer;
 import de.teamlapen.vampirism.client.gui.screens.SelectActionRadialScreen;
 import de.teamlapen.vampirism.client.gui.screens.SelectAmmoScreen;
 import de.teamlapen.vampirism.client.gui.screens.SelectMinionTaskRadialScreen;
@@ -17,6 +18,7 @@ import de.teamlapen.vampirism.entity.player.vampire.actions.VampireActions;
 import de.teamlapen.vampirism.network.ServerboundSimpleInputEvent;
 import de.teamlapen.vampirism.network.ServerboundStartFeedingPacket;
 import de.teamlapen.vampirism.network.ServerboundToggleActionPacket;
+import de.teamlapen.vampirism.util.Helper;
 import it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -28,6 +30,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
@@ -41,6 +44,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Handles all key/input related stuff
@@ -62,6 +66,7 @@ public class ModKeys {
     public static final KeyMapping MINION = new KeyMapping("keys.vampirism.minion_task", KeyConflictContext.IN_GAME, InputConstants.UNKNOWN, CATEGORY);
     public static final KeyMapping SELECT_AMMO = new KeyMapping("keys.vampirism.select_ammo", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, CATEGORY);
     public static final KeyMapping SKILL_SCREEN = new KeyMapping("keys.vampirism.skill_screen", KeyConflictContext.IN_GAME, InputConstants.UNKNOWN, CATEGORY);
+    public static final KeyMapping GROW_WINGS = new KeyMapping("keys.vampirism.grow_wings", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_COMMA, CATEGORY);
 
     public static final Map<ActionKeys, KeyMapping> ACTION_KEYS;
 
@@ -85,6 +90,7 @@ public class ModKeys {
         event.register(MINION);
         event.register(SELECT_AMMO);
         event.register(SKILL_SCREEN);
+        event.register(GROW_WINGS);
         ACTION_KEYS.forEach((i, k) -> event.register(k));
     }
 
@@ -102,6 +108,7 @@ public class ModKeys {
         keyMappingActions.put(MINION, this::openMinionTaskMenu);
         keyMappingActions.put(SELECT_AMMO, this::selectAmmo);
         keyMappingActions.put(SKILL_SCREEN, this::openSkillScreen);
+        keyMappingActions.put(GROW_WINGS, this::growWings);
         ACTION_KEYS.forEach((i, key) -> keyMappingActions.put(key, () -> toggleAction(i)));
         this.keyMappingActions = keyMappingActions.build();
         this.mc = Minecraft.getInstance();
@@ -132,6 +139,7 @@ public class ModKeys {
                 }
             }
         }
+        updateWingsFlying();
     }
 
     private void suck() {
@@ -221,5 +229,20 @@ public class ModKeys {
         if (mc.player.isAlive()) {
             SelectAmmoScreen.show();
         }
+    }
+
+    private void updateWingsFlying() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player != null && Helper.isVampire(player) && player.isFallFlying()) {
+            Optional<IDraculaPlayer> draculaOpt = IDraculaPlayer.getDracula(player).filter(x -> x.asEntity().isFallFlying()).filter(x -> Minecraft.getInstance().options.keyJump.consumeClick());
+            draculaOpt.ifPresent(dracula -> {
+                VampirismMod.proxy.sendToServer(new ServerboundSimpleInputEvent(ServerboundSimpleInputEvent.Event.JUMP));
+                dracula.swingWings();
+            });
+        }
+    }
+
+    private void growWings() {
+        VampirismMod.proxy.sendToServer(new ServerboundSimpleInputEvent(ServerboundSimpleInputEvent.Event.GROW_WINGS));
     }
 }

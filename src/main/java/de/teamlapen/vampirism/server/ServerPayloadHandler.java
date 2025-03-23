@@ -40,6 +40,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -163,8 +164,9 @@ public class ServerPayloadHandler {
             switch (msg.event()) {
                 case FINISH_SUCK_BLOOD -> VampirePlayer.get(player).endFeeding(true);
                 case RESET_SKILLS -> {
-                    InventoryHelper.removeItemFromInventory(player.getInventory(), new ItemStack(ModItems.OBLIVION_POTION.get()));
-                    handler.getCurrentSkillPlayer().ifPresent(OblivionItem::applyEffect);
+                    if (InventoryHelper.removeItemFromInventory(player.getInventory(), new ItemStack(ModItems.OBLIVION_POTION.get()))) {
+                        handler.getCurrentSkillPlayer().ifPresent(OblivionItem::applyEffect);
+                    }
                 }
                 case REVERT_BACK -> {
                     if (player.containerMenu instanceof RevertBackMenu menu) {
@@ -187,6 +189,8 @@ public class ServerPayloadHandler {
                 case VAMPIRISM_MENU -> handler.getTaskManager().ifPresent(ITaskManager::openVampirismMenu);
                 case RESURRECT -> VampirePlayer.get(player).tryResurrect();
                 case GIVE_UP -> VampirePlayer.get(player).giveUpDBNO();
+                case JUMP -> VampirePlayer.get(player).swingWings();
+                case GROW_WINGS -> VampirePlayer.get(player).toggleWings();
             }
         });
     }

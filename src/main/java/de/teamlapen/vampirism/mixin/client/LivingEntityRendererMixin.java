@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.api.entity.convertible.IConvertedCreature;
 import de.teamlapen.vampirism.api.entity.hunter.IHunterMob;
+import de.teamlapen.vampirism.api.entity.player.vampire.IDraculaPlayer;
 import de.teamlapen.vampirism.blocks.CoffinBlock;
 import de.teamlapen.vampirism.client.VampirismModClient;
 import de.teamlapen.vampirism.client.renderer.entity.ConvertedCreatureRenderer;
@@ -51,6 +52,12 @@ public class LivingEntityRendererMixin<T extends LivingEntity, S extends LivingE
             bat.yHeadRotO = player.yHeadRotO;
             bat.yBodyRotO = player.yBodyRotO;
             renderState.vampirism$bat(bat);
+
+            IDraculaPlayer.getDracula(player).ifPresent(dracula -> {
+                renderState.vampirism$setWingsState(dracula.getWingsState());
+                renderState.vampirism$getFlyAnimationState().copyFrom(dracula.flyAnimation());
+                renderState.vampirism$getGrowingWingsAnimationState().copyFrom(dracula.growAnimation());
+            });
         }
         ExtendedCreature.getSafe(entity).ifPresent(creature -> {
             renderState.vampirism$blood(creature.getBlood());

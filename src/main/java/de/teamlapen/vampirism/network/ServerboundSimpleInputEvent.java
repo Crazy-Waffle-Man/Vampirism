@@ -33,6 +33,8 @@ public record ServerboundSimpleInputEvent(Event event) implements CustomPacketPa
         SHOW_MINION_CALL_SELECTION,
         VAMPIRISM_MENU,
         RESURRECT,
-        GIVE_UP
+        GIVE_UP,
+        JUMP,
+        GROW_WINGS
     }
 }

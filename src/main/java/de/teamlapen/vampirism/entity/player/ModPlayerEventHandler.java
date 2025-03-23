@@ -6,6 +6,7 @@ import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.factions.IPlayableFaction;
 import de.teamlapen.vampirism.api.entity.player.actions.IActionHandler;
+import de.teamlapen.vampirism.api.entity.player.vampire.IDraculaPlayer;
 import de.teamlapen.vampirism.blockentity.TotemBlockEntity;
 import de.teamlapen.vampirism.blocks.AltarInspirationBlock;
 import de.teamlapen.vampirism.blocks.BloodContainerBlock;
@@ -48,6 +49,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -495,6 +497,13 @@ public class ModPlayerEventHandler {
         if (event.getEntity() instanceof ServerPlayer player) {
             GarlicLevel.get(event.getLevel()).updatePlayer(player);
             FogLevel.get(event.getLevel()).updatePlayer(player);
+        }
+    }
+
+    @SubscribeEvent
+    public void gilderEquipped(LivingEquipmentChangeEvent event) {
+        if (event.getEntity() instanceof Player player && event.getSlot() == EquipmentSlot.CHEST && event.getTo().has(DataComponents.GLIDER)) {
+            IDraculaPlayer.getDracula(player).ifPresent(IDraculaPlayer::hideWings);
         }
     }
 }

@@ -41,6 +41,9 @@ public interface ISyncable extends INBTObject {
      * A utility method to make the calling of {@link #deserializeUpdateNBT(net.minecraft.core.HolderLookup.Provider, CompoundTag)} easier
      */
     default void updateFromCompound(HolderLookup.@NotNull Provider provider, CompoundTag compoundTag) {
-        deserializeUpdateNBT(provider, compoundTag.getCompound(nbtKey()));
+        String key = nbtKey();
+        if (compoundTag.contains(key)) {
+            deserializeUpdateNBT(provider, compoundTag.getCompound(key));
+        }
     }
 }

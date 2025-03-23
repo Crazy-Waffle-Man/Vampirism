@@ -1,12 +1,15 @@
 package de.teamlapen.vampirism.client.core;
 
+import com.google.common.base.Suppliers;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.client.model.*;
 import de.teamlapen.vampirism.client.model.armor.*;
 import de.teamlapen.vampirism.client.renderer.entity.*;
 import de.teamlapen.vampirism.client.renderer.entity.layers.ConvertedVampireEntityLayer;
 import de.teamlapen.vampirism.client.renderer.entity.layers.VampirePlayerHeadLayer;
+import de.teamlapen.vampirism.client.renderer.entity.layers.WingsLayer;
 import de.teamlapen.vampirism.client.renderer.entity.state.IConvertedOverlayRenderState;
+import de.teamlapen.vampirism.client.renderer.entity.state.IDraculaPlayerRenderState;
 import de.teamlapen.vampirism.core.ModEntities;
 import net.minecraft.client.model.*;
 import net.minecraft.client.model.geom.LayerDefinitions;
@@ -15,6 +18,8 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.entity.*;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.resources.PlayerSkin;
@@ -148,6 +153,9 @@ public class ModEntitiesRender {
             if (renderPlayer != null && renderPlayer.getModel() instanceof PlayerModel) {
                 LivingEntityRenderer<S, T, PlayerModel> renderPlayer2 = (LivingEntityRenderer<S, T, PlayerModel>) renderPlayer;
                 renderPlayer2.addLayer(new VampirePlayerHeadLayer<>(renderPlayer2));
+                if (renderPlayer2 instanceof PlayerRenderer pR) {
+                    renderPlayer2.addLayer((RenderLayer<T, PlayerModel>) new WingsLayer<Player, PlayerRenderState, PlayerModel>(pR, event.getEntityModels(), (x, l) -> l.body));
+                }
             }
         }
     }
