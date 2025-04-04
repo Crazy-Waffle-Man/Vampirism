@@ -1,5 +1,16 @@
 [
   {
+    "faction": "vampirism:none",
+    "name": "Maxanier",
+    "texture": "maxanier",
+    "type": 0,
+    "status": "Dev",
+    "bookId": null,
+    "appearance": {
+
+    }
+  },
+  {
     "faction": "vampirism:hunter",
     "name": "Commander Sam",
     "texture": "LilCatGod",

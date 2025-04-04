@@ -44,6 +44,9 @@ public class LivingEntityRenderStateMixin implements IVampirismRenderState {
     private final AnimationState vampirism$growingWingsAnimationState = new AnimationState();
     @Unique
     private IWingsEntity.WingsState vampirism$wingsState;
+    @Nullable
+    @Unique
+    private ResourceLocation vampirism$wingsTexture;
 
     @Override
     public @Nullable ResourceLocation vampirism$overlay() {
@@ -165,4 +168,14 @@ public class LivingEntityRenderStateMixin implements IVampirismRenderState {
         return this.vampirism$wingsState;
     }
 
+    @Override
+    public void vampirism$setWingsTexture(@Nullable ResourceLocation texture) {
+        this.vampirism$wingsTexture = texture;
+    }
+
+    @Nullable
+    @Override
+    public ResourceLocation vampirism$getWingsTexture() {
+        return this.vampirism$wingsTexture;
+    }
 }

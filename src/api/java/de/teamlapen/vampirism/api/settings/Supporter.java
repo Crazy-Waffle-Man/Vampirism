@@ -15,6 +15,6 @@ import java.util.Map;
  * @param bookId     if set it will be used to drop a specific book on loot drops
  * @param appearance appearance options for the renderer
  */
-public record Supporter(@NotNull ResourceLocation faction, @NotNull String name, @NotNull String texture, @Nullable String bookId, @NotNull Map<String, String> appearance) {
+public record Supporter(@NotNull ResourceLocation faction, @NotNull String name, @NotNull String texture, @Nullable String bookId, String status, @NotNull Map<String, String> appearance) {
 
 }

@@ -2,6 +2,8 @@ package de.teamlapen.lib.lib.util;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -59,6 +61,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -845,5 +848,10 @@ public class UtilLib {
         CompoundTag tag = new CompoundTag();
         tag.putString(key, value);
         return tag;
+    }
+
+    public static <T,Z> Function<T,Z> cache(Function<T, Z> function) {
+        Object2ObjectMap<T,Z> map = new Object2ObjectOpenHashMap<>();
+        return t -> map.computeIfAbsent(t, function);
     }
 }

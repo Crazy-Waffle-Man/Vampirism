@@ -30,6 +30,7 @@ public class SupporterDeserializer implements JsonDeserializer<Supporter> {
         } else {
             appearance = Map.of();
         }
-        return new Supporter(ResourceLocation.parse(faction), name, texture, book, appearance);
+        var status = object.get("status").getAsString();
+        return new Supporter(ResourceLocation.parse(faction), name, texture, book, status, appearance);
     }
 }

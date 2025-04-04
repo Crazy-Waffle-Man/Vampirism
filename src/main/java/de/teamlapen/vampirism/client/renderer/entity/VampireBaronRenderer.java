@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.AnimationState;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class VampireBaronRenderer extends MobRenderer<VampireBaronEntity, VampireBaronRenderer.VampireBaronRenderState, BaronBaseModel> {
 
@@ -44,29 +45,29 @@ public class VampireBaronRenderer extends MobRenderer<VampireBaronEntity, Vampir
     }
 
     @Override
-    public void render(VampireBaronRenderState state, PoseStack stack, MultiBufferSource bufferSource, int packedLight) {
+    public void render(VampireBaronRenderState state, @NotNull PoseStack stack, @NotNull MultiBufferSource bufferSource, int packedLight) {
         this.model = state.isLady ? baronessModel : baronModel;
         super.render(state, stack, bufferSource, packedLight);
     }
 
     @Override
-    public VampireBaronRenderState createRenderState() {
+    public @NotNull VampireBaronRenderState createRenderState() {
         return new VampireBaronRenderState();
     }
 
     @Override
-    public void extractRenderState(VampireBaronEntity entity, VampireBaronRenderState state, float p_361157_) {
+    public void extractRenderState(@NotNull VampireBaronEntity entity, @NotNull VampireBaronRenderState state, float p_361157_) {
         super.extractRenderState(entity, state, p_361157_);
-        state.isEnraged = entity.isEnraged();
         state.isLady = entity.isLady();
-        state.enragedProgress = entity.getEnragedProgress();
+        state.isEnraged = entity.isEnraged();
+        state.flyState.copyFrom(entity.getWingsStateAnimation());
+        state.growingWingsState.copyFrom(entity.getWingsGrowState());
+        state.wingsState = entity.getWingsState();
     }
 
     public static class VampireBaronRenderState extends HumanoidRenderState implements IVampireWingsRenderState {
-        public boolean isEnraged;
         public boolean isLady;
-        public float enragedProgress;
-        public final AnimationState cloakState = new AnimationState();
+        public boolean isEnraged;
         public final AnimationState flyState = new AnimationState();
         public final AnimationState growingWingsState = new AnimationState();
         public IWingsEntity.WingsState wingsState = IWingsEntity.WingsState.CLOSED;

@@ -1,5 +1,7 @@
 package de.teamlapen.vampirism.mixin.client;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import de.teamlapen.vampirism.api.VampirismAPI;
@@ -9,6 +11,7 @@ import de.teamlapen.vampirism.api.entity.player.vampire.IDraculaPlayer;
 import de.teamlapen.vampirism.blocks.CoffinBlock;
 import de.teamlapen.vampirism.client.VampirismModClient;
 import de.teamlapen.vampirism.client.renderer.entity.ConvertedCreatureRenderer;
+import de.teamlapen.vampirism.client.renderer.entity.layers.WingsLayer;
 import de.teamlapen.vampirism.client.renderer.entity.state.IVampirismRenderState;
 import de.teamlapen.vampirism.core.ModAttachments;
 import de.teamlapen.vampirism.entity.ExtendedCreature;
@@ -57,6 +60,7 @@ public class LivingEntityRendererMixin<T extends LivingEntity, S extends LivingE
                 renderState.vampirism$setWingsState(dracula.getWingsState());
                 renderState.vampirism$getFlyAnimationState().copyFrom(dracula.flyAnimation());
                 renderState.vampirism$getGrowingWingsAnimationState().copyFrom(dracula.growAnimation());
+                renderState.vampirism$setWingsTexture(WingsLayer.textureGetter.apply(player));
             });
         }
         ExtendedCreature.getSafe(entity).ifPresent(creature -> {

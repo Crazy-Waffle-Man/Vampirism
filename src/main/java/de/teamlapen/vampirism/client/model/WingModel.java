@@ -49,7 +49,7 @@ public class WingModel<T extends HumanoidRenderState> extends EntityModel<T> {
 
         switch (wingsState.vampirism$getWingsState()) {
             case OPENING -> this.animate(wingsState.vampirism$getGrowingWingsAnimationState(), GROW_ANIMATION, state.ageInTicks, IWingsEntity.GROW_SPEED);
-            case OPEN -> this.animate(wingsState.vampirism$getFlyAnimationState(), IDLE_ANIMATION, state.ageInTicks,1);
+            case OPEN -> this.animate(wingsState.vampirism$getFlyAnimationState(), IDLE_ANIMATION, state.ageInTicks,0.25f);
             case FLYING -> this.animate(wingsState.vampirism$getFlyAnimationState(), SWING_ANIMATION, state.ageInTicks,1);
             case CLOSING -> this.animate(wingsState.vampirism$getGrowingWingsAnimationState(), SHRINK_ANIMATION, state.ageInTicks, IWingsEntity.GROW_SPEED);
             case CLOSED -> {}

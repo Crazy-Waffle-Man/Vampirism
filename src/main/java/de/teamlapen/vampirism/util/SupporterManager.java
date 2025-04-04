@@ -7,9 +7,11 @@ import net.minecraft.util.RandomSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 /**
@@ -23,6 +25,7 @@ public class SupporterManager {
 
     private static Supporter[] vampire = new Supporter[0];
     private static Supporter[] hunter = new Supporter[0];
+    private static Map<String, Supporter> supporterMap = new HashMap<>();
 
     /**
      * Returns a randomly picked hunter
@@ -31,7 +34,7 @@ public class SupporterManager {
         if (hunter.length > 0) {
             return hunter[rnd.nextInt(hunter.length)];
         }
-        return new Supporter(VReference.HUNTER_FACTION_ID, "none", "none", null, new HashMap<>());
+        return new Supporter(VReference.HUNTER_FACTION_ID, "none", "none", null, "none", new HashMap<>());
     }
 
     /**
@@ -41,7 +44,7 @@ public class SupporterManager {
         if (vampire.length > 0) {
             return vampire[rnd.nextInt(vampire.length)];
         }
-        return new Supporter(VReference.VAMPIRE_FACTION_ID, "none", "none", null, new HashMap<>());
+        return new Supporter(VReference.VAMPIRE_FACTION_ID, "none", "none", null, "none", new HashMap<>());
     }
 
     public static void init() {
@@ -50,6 +53,7 @@ public class SupporterManager {
                 vampire = optional.get().stream().filter(s -> s.faction().equals(VReference.VAMPIRE_FACTION_ID)).toArray(Supporter[]::new);
                 hunter = optional.get().stream().filter(s -> s.faction().equals(VReference.HUNTER_FACTION_ID)).toArray(Supporter[]::new);
                 LOGGER.debug("Loaded {} vampire and {} hunter supporter", vampire.length, hunter.length);
+                optional.get().forEach(s -> supporterMap.put(s.name(), s));
                 return optional.get();
             } else {
                 LOGGER.warn("Failed to retrieve supporters");
@@ -60,6 +64,11 @@ public class SupporterManager {
 
     public static Stream<Supporter> getSupporter() {
         return Stream.concat(Stream.of(hunter), Stream.of(vampire));
+    }
+
+    @Nullable
+    public static Supporter getSupporter(String name) {
+        return supporterMap.get(name);
     }
 
 }

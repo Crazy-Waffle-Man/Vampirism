@@ -33,7 +33,6 @@ public class BaronAttireModel extends EntityModel<VampireBaronRenderer.VampireBa
 
     public final @NotNull ModelPart hood;
     public final @NotNull ModelPart cloak;
-    private float enragedProgress = 0;
 
     public static @NotNull LayerDefinition createLayer() {
         MeshDefinition mesh = new MeshDefinition();
@@ -62,8 +61,7 @@ public class BaronAttireModel extends EntityModel<VampireBaronRenderer.VampireBa
         }
         this.hood.yRot = bodyRotateAngleY;
         this.cloak.yRot = bodyRotateAngleY;
-        this.enragedProgress = entityIn.enragedProgress;
-        this.animate(entityIn.cloakState, TEST, entityIn.ageInTicks);
+//        this.animate(entityIn.cloakState, TEST, entityIn.ageInTicks);
     }
 
     private static final AnimationDefinition TEST = AnimationDefinition.Builder.withLength(2)
