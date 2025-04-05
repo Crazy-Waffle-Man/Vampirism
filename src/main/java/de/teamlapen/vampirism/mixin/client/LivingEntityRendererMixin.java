@@ -1,7 +1,5 @@
 package de.teamlapen.vampirism.mixin.client;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import de.teamlapen.vampirism.api.VampirismAPI;
@@ -12,7 +10,7 @@ import de.teamlapen.vampirism.blocks.CoffinBlock;
 import de.teamlapen.vampirism.client.VampirismModClient;
 import de.teamlapen.vampirism.client.renderer.entity.ConvertedCreatureRenderer;
 import de.teamlapen.vampirism.client.renderer.entity.layers.WingsLayer;
-import de.teamlapen.vampirism.client.renderer.entity.state.IVampirismRenderState;
+import de.teamlapen.vampirism.client.renderer.entity.state.extensions.*;
 import de.teamlapen.vampirism.core.ModAttachments;
 import de.teamlapen.vampirism.entity.ExtendedCreature;
 import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
@@ -36,39 +34,42 @@ public class LivingEntityRendererMixin<T extends LivingEntity, S extends LivingE
 
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;F)V", at = @At("RETURN"))
     private void applyConvertedRenderState(T entity, S state, float p_361157_, CallbackInfo ci) {
-        IVampirismRenderState renderState = (IVampirismRenderState) state;
         if (ConvertedCreatureRenderer.renderOverlay) {
             Optional.of(BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType())).map(ResourceLocation::toString).map(s -> VampirismAPI.entityRegistry().getConvertibleOverlay(s)).ifPresent(location -> {
-                renderState.vampirism$overlay(location);
+                ((IConvertedOverlayRenderStateExtension) state).vampirism$overlay(location);
             });
         }
         if (entity instanceof IConvertedCreature<?> creature) {
             Optional.ofNullable(creature.getSourceEntityId()).map(s -> VampirismAPI.entityRegistry().getConvertibleOverlay(s)).ifPresent(location -> {
-                renderState.vampirism$convertedOverlay(location);
+                ((IConvertedOverlayRenderStateExtension) state).vampirism$convertedOverlay(location);
             });
         }
-        if (entity instanceof Player player) {
-            renderState.vampirism$attributes(VampirismPlayerAttributes.get(player));
+        if (entity instanceof Player player && state instanceof IPlayerRenderStateExtension extension) {
+
+            extension.vampirism$attributes(VampirismPlayerAttributes.get(player));
             Bat bat = player.getData(ModAttachments.VAMPIRE_BAT.get());
             bat.yHeadRot = player.yHeadRot;
             bat.yBodyRot = player.yBodyRot;
             bat.yHeadRotO = player.yHeadRotO;
             bat.yBodyRotO = player.yBodyRotO;
-            renderState.vampirism$bat(bat);
 
-            IDraculaPlayer.getDracula(player).ifPresent(dracula -> {
-                renderState.vampirism$setWingsState(dracula.getWingsState());
-                renderState.vampirism$getFlyAnimationState().copyFrom(dracula.flyAnimation());
-                renderState.vampirism$getGrowingWingsAnimationState().copyFrom(dracula.growAnimation());
-                renderState.vampirism$setWingsTexture(WingsLayer.textureGetter.apply(player));
-            });
+            if (state instanceof IVampirePlayerRenderStateExtension vampExtension) {
+                vampExtension.vampirism$bat(bat);
+
+                IDraculaPlayer.getDracula(player).ifPresent(dracula -> {
+                    vampExtension.vampirism$setWingsState(dracula.getWingsState());
+                    vampExtension.vampirism$getFlyAnimationState().copyFrom(dracula.flyAnimation());
+                    vampExtension.vampirism$getGrowingWingsAnimationState().copyFrom(dracula.growAnimation());
+                    vampExtension.vampirism$setWingsTexture(WingsLayer.textureGetter.apply(player));
+                });
+            }
         }
         ExtendedCreature.getSafe(entity).ifPresent(creature -> {
-            renderState.vampirism$blood(creature.getBlood());
-            renderState.vampirism$poisonousBlood(creature.hasPoisonousBlood());
+            ((ICreatureRenderStateExtension) state).vampirism$blood(creature.getBlood());
+            ((ICreatureRenderStateExtension) state).vampirism$poisonousBlood(creature.hasPoisonousBlood());
         });
-        renderState.vampirism$hunter(entity instanceof IHunterMob);
-        renderState.sleeping$inCoffin(entity.getSleepingPos().map(s -> entity.level().getBlockState(s)).filter(s -> s.getBlock() instanceof CoffinBlock).isPresent());
+        ((IFactionRenderStateExtension) state).vampirism$hunter(entity instanceof IHunterMob);
+        ((ILivingEntityRenderStateExtension) state).vampirism$sleepingInCoffin(entity.getSleepingPos().map(s -> entity.level().getBlockState(s)).filter(s -> s.getBlock() instanceof CoffinBlock).isPresent());
     }
 
     @WrapOperation(method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;shouldRenderLayers(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;)Z"))

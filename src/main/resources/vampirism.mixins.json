@@ -69,7 +69,6 @@
     "client.KeyMappingMixin",
     "client.LevelRendererMixin",
     "client.LivingEntityRendererMixin",
-    "client.LivingEntityRenderStateMixin",
     "client.MinecraftMixin",
     "client.ResourceLoadStateTrackerMixin",
     "client.StatsScreenMixin",
@@ -85,7 +84,13 @@
     "client.accessor.LivingEntityRendererAccessor",
     "client.accessor.ParticleEngineAccessor",
     "client.accessor.StatsScreenAccessor",
-    "client.accessor.VillagerModelAccessor"
+    "client.accessor.VillagerModelAccessor",
+    "client.state.BloodEntityRenderStateMixin",
+    "client.state.ConvertableCreatureRenderStateMixin",
+    "client.state.FactionLivingEntityRenderStateMixin",
+    "client.state.LivingEntityRenderStateMixin",
+    "client.state.PlayerRenderStateMixin",
+    "client.state.VampirePlayerRenderStateMixin"
   ],
   "injectors": {
     "defaultRequire": 1

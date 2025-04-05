@@ -1,6 +1,6 @@
-package de.teamlapen.vampirism.client.renderer.entity.state;
+package de.teamlapen.vampirism.client.renderer.entity.state.extensions;
 
-public interface ICreatureRenderState {
+public interface ICreatureRenderStateExtension {
 
     int vampirism$blood();
 

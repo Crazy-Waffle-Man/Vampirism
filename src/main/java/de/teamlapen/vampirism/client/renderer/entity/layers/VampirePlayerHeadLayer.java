@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
-import de.teamlapen.vampirism.client.renderer.entity.state.IVampirismRenderState;
+import de.teamlapen.vampirism.client.renderer.entity.state.extensions.IPlayerRenderStateExtension;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
 import net.minecraft.client.model.PlayerModel;
@@ -38,7 +38,7 @@ public class VampirePlayerHeadLayer<T extends PlayerRenderState, Q extends Playe
     @Override
     public void render(@NotNull PoseStack stack, @NotNull MultiBufferSource iRenderTypeBuffer, int i, @NotNull T player, float v, float v1) {
         if (!VampirismConfig.CLIENT.renderVampireEyes.get() || player.deathTime > 0) return;
-        VampirismPlayerAttributes atts = ((IVampirismRenderState) player).vampirism$attributes();
+        VampirismPlayerAttributes atts = ((IPlayerRenderStateExtension) player).vampirism$attributes();
         if (atts.vampireLevel > 0 && !atts.getVampSpecial().disguised && !player.isInvisible) {
             int eyeType = Math.max(0, Math.min(atts.getVampSpecial().eyeType, eyeOverlays.length - 1));
             int fangType = Math.max(0, Math.min(atts.getVampSpecial().fangType, fangOverlays.length - 1));

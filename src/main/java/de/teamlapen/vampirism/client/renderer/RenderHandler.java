@@ -2,7 +2,9 @@ package de.teamlapen.vampirism.client.renderer;
 
 import de.teamlapen.vampirism.api.items.IItemWithTier;
 import de.teamlapen.vampirism.blocks.CoffinBlock;
-import de.teamlapen.vampirism.client.renderer.entity.state.IVampirismRenderState;
+import de.teamlapen.vampirism.client.renderer.entity.state.extensions.ILivingEntityRenderStateExtension;
+import de.teamlapen.vampirism.client.renderer.entity.state.extensions.IPlayerRenderStateExtension;
+import de.teamlapen.vampirism.client.renderer.entity.state.extensions.IVampirePlayerRenderStateExtension;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.ModRefinements;
 import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
@@ -120,15 +122,17 @@ public class RenderHandler {
 
     @SubscribeEvent
     public void onRenderLivingPre(RenderLivingEvent.@NotNull Pre<Player, PlayerRenderState, PlayerModel> event) {
-        var vampirism = ((IVampirismRenderState) event.getRenderState()).vampirism$attributes();
-        if (vampirism != null && vampirism.getHuntSpecial().isDisguised()) {
-            double dist = this.mc.player == null ? 0 : event.getRenderState().distanceToCameraSq;
-            if (dist > 64) {
-                event.setCanceled(true);
-            } else if (dist > 16) {
-                IItemWithTier.TIER hunterCoatTier = vampirism.getHuntSpecial().fullHunterCoat;
-                if (hunterCoatTier == IItemWithTier.TIER.ENHANCED || hunterCoatTier == IItemWithTier.TIER.ULTIMATE) {
+        if (event.getRenderState() instanceof PlayerRenderState) {
+            var vampirism = ((IPlayerRenderStateExtension) event.getRenderState()).vampirism$attributes();
+            if (vampirism != null && vampirism.getHuntSpecial().isDisguised()) {
+                double dist = this.mc.player == null ? 0 : event.getRenderState().distanceToCameraSq;
+                if (dist > 64) {
                     event.setCanceled(true);
+                } else if (dist > 16) {
+                    IItemWithTier.TIER hunterCoatTier = vampirism.getHuntSpecial().fullHunterCoat;
+                    if (hunterCoatTier == IItemWithTier.TIER.ENHANCED || hunterCoatTier == IItemWithTier.TIER.ULTIMATE) {
+                        event.setCanceled(true);
+                    }
                 }
             }
         }
@@ -148,8 +152,7 @@ public class RenderHandler {
 
     @SubscribeEvent
     public void onRenderPlayer(RenderPlayerEvent.@NotNull Pre event) {
-        IVampirismRenderState vampState = (IVampirismRenderState) event.getRenderState();
-        VampirePlayerSpecialAttributes vAtt = vampState.vampirism$attributes().getVampSpecial();
+        VampirePlayerSpecialAttributes vAtt = ((IPlayerRenderStateExtension)event.getRenderState()).vampirism$attributes().getVampSpecial();
         if (vAtt.isDBNO) {
             event.getPoseStack().translate(1.2, 0, 0);
             PlayerModel m = event.getRenderer().getModel();
@@ -161,7 +164,7 @@ public class RenderHandler {
             m.leftLeg.visible = false;
             m.rightPants.visible = false;
             m.leftPants.visible = false;
-        } else if (vampState.sleeping$inCoffin()) {
+        } else if (((ILivingEntityRenderStateExtension) event.getRenderState()).vampirism$sleepingInCoffin()) {
             //Shrink player, so they fit into the coffin model
             event.getPoseStack().scale(0.8f, 0.95f, 0.8f);
         }
@@ -175,13 +178,12 @@ public class RenderHandler {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onRenderPlayerPreHigh(RenderPlayerEvent.@NotNull Pre event) {
-        IVampirismRenderState vampState = (IVampirismRenderState) event.getRenderState();
-        VampirePlayerSpecialAttributes vAtt = vampState.vampirism$attributes().getVampSpecial();
+        VampirePlayerSpecialAttributes vAtt = ((IPlayerRenderStateExtension) event.getRenderState()).vampirism$attributes().getVampSpecial();
         if (vAtt.invisible) {
             event.setCanceled(true);
         } else if (vAtt.bat) {
             event.setCanceled(true);
-            var bat = vampState.vampirism$bat();
+            var bat = ((IVampirePlayerRenderStateExtension) event.getRenderState()).vampirism$bat();
 
             float partialTicks = event.getPartialTick();
 

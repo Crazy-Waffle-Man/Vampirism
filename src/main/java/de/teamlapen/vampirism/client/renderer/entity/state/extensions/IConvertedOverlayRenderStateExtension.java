@@ -1,9 +1,9 @@
-package de.teamlapen.vampirism.client.renderer.entity.state;
+package de.teamlapen.vampirism.client.renderer.entity.state.extensions;
 
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
-public interface IConvertedOverlayRenderState {
+public interface IConvertedOverlayRenderStateExtension {
 
     @Nullable
     ResourceLocation vampirism$overlay();
