@@ -85,8 +85,8 @@ public class SkillsTabScreen {
         this.minY = -(this.treeHeight + 16);
         this.maxY = 20;
 
-        this.minX = -SCREEN_WIDTH / 2d;
-        this.maxX = this.treeWidth - SCREEN_WIDTH / 2d;
+        this.minX = -(SCREEN_WIDTH + this.treeWidth) / 2d;
+        this.maxX = (SCREEN_WIDTH + this.treeWidth) / 2d;
         this.centerX = 0;
         this.centerY = 0;
     }

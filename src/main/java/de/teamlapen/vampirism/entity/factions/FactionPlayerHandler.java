@@ -451,10 +451,7 @@ public class FactionPlayerHandler extends Attachment implements IFactionPlayerHa
 
     @Override
     public void checkSkillTreeLocks() {
-        if (this.player.level() instanceof ServerLevel level) {
-            Registry<ISkillTree> registryAccess = this.player.level().registryAccess().lookupOrThrow(VampirismRegistries.Keys.SKILL_TREE);
-            getSkillHandler().ifPresent(handler -> handler.updateUnlockedSkillTrees(registryAccess.listElements().filter(s -> s.value().unlockPredicate().matches(level, null, this.player)).collect(Collectors.toList())));
-        }
+        getSkillHandler().ifPresent(ISkillHandler::checkSkillTrees);
     }
 
     /**

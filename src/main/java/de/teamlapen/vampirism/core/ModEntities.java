@@ -2,8 +2,10 @@ package de.teamlapen.vampirism.core;
 
 import com.mojang.serialization.MapCodec;
 import de.teamlapen.vampirism.REFERENCE;
+import de.teamlapen.vampirism.advancements.critereon.AndSubPredicate;
 import de.teamlapen.vampirism.advancements.critereon.FactionSubPredicate;
 import de.teamlapen.vampirism.advancements.critereon.PlayerFactionSubPredicate;
+import de.teamlapen.vampirism.advancements.critereon.SkillUnlockedSubPredicate;
 import de.teamlapen.vampirism.api.VEnums;
 import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.api.VampirismRegistries;
@@ -106,6 +108,8 @@ public class ModEntities {
 
     public static final DeferredHolder<MapCodec<? extends EntitySubPredicate>, MapCodec<PlayerFactionSubPredicate>> PLAYER_FACTION_SUB_PREDICATE = ENTITY_SUB_PREDICATES.register("player_faction", () -> PlayerFactionSubPredicate.CODEC);
     public static final DeferredHolder<MapCodec<? extends EntitySubPredicate>, MapCodec<FactionSubPredicate>> FACTION_SUB_PREDICATE = ENTITY_SUB_PREDICATES.register("faction", () -> FactionSubPredicate.CODEC);
+    public static final DeferredHolder<MapCodec<? extends EntitySubPredicate>, MapCodec<SkillUnlockedSubPredicate>> SKILL_UNLOCKED_SUB_PREDICATE = ENTITY_SUB_PREDICATES.register("kill_unlocked", () -> SkillUnlockedSubPredicate.CODEC);
+    public static final DeferredHolder<MapCodec<? extends EntitySubPredicate>, MapCodec<AndSubPredicate>> AND_SUB_PREDICATE = ENTITY_SUB_PREDICATES.register("and", () -> AndSubPredicate.CODEC);
 
     @SuppressWarnings("unused")
     public static final DeferredHolder<MapCodec<? extends ICondition>, MapCodec<? extends ICondition>> ENTITY_EXISTS = CONDITIONS.register("entity_exists", () -> EntityExistsCondition.CODEC);

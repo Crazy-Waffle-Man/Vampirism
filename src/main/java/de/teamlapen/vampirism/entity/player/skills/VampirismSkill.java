@@ -9,6 +9,7 @@ import de.teamlapen.vampirism.api.entity.player.hunter.IHunterPlayer;
 import de.teamlapen.vampirism.api.entity.player.skills.DefaultSkill;
 import de.teamlapen.vampirism.api.entity.player.vampire.IVampirePlayer;
 import de.teamlapen.vampirism.core.tags.ModFactionTags;
+import de.teamlapen.vampirism.core.tags.ModSkillTreeTags;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
 import de.teamlapen.vampirism.entity.player.vampire.skills.VampireSkills;
 import net.minecraft.network.chat.Component;
@@ -97,7 +98,7 @@ public abstract class VampirismSkill<T extends IFactionPlayer<T> & ISkillPlayer<
          * @param desc Enable description using the default unlocalized key
          */
         public SimpleHunterSkill(int skillPointCost, boolean desc) {
-            super(Either.left(HunterSkills.Trees.LEVEL), skillPointCost, desc);
+            super(Either.right(ModSkillTreeTags.LEVEL), skillPointCost, desc);
         }
 
         @Override
@@ -112,7 +113,7 @@ public abstract class VampirismSkill<T extends IFactionPlayer<T> & ISkillPlayer<
          * @param desc Enable description using the default unlocalized key
          */
         public HunterLordSkill(int skillPointCost, boolean desc) {
-            super(Either.left(HunterSkills.Trees.LORD), skillPointCost, desc);
+            super(Either.right(ModSkillTreeTags.LORD), skillPointCost, desc);
         }
 
         @Override

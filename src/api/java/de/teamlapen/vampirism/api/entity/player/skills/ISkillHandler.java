@@ -81,6 +81,8 @@ public interface ISkillHandler<T extends ISkillPlayer<T>> {
 
     void disableAllSkills();
 
+    void checkSkillTrees();
+
     void updateUnlockedSkillTrees(Collection<Holder<ISkillTree>> skillTrees);
 
     Collection<Holder<ISkillTree>> unlockedSkillTrees();

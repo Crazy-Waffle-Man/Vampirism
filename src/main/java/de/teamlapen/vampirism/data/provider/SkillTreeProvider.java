@@ -26,44 +26,46 @@ public class SkillTreeProvider extends de.teamlapen.vampirism.data.provider.pare
         output.accept(modId("hunter_level"), new SkillTreeConfiguration(trees.getOrThrow(HunterSkills.Trees.LEVEL), nodes.getOrThrow(HunterSkills.Nodes.LEVEL_ROOT),
                 new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.SKILL2),
                         new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.SKILL3),
-                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.SKILL4),
-                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.ALCHEMY1),
-                                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.ALCHEMY2),
-                                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.ALCHEMY3),
-                                                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.ALCHEMY4),
-                                                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.ALCHEMY5),
-                                                                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.ALCHEMY6))
-                                                                        )
-                                                                )
-                                                        )
-                                                )
-                                        ),
-                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.POTION1),
-                                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.POTION2),
-                                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.POTION3),
-                                                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.POTION4),
-                                                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.POTION5),
-                                                                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.POTION6))
-                                                                        )
-                                                                )
-                                                        )
-                                                )
-                                        ),
-                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.WEAPON1),
-                                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.WEAPON2),
-                                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.WEAPON3),
-                                                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.WEAPON4),
-                                                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.WEAPON5),
-                                                                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.WEAPON6))
-                                                                        )
-                                                                )
-                                                        )
+                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.SKILL4))
+                        )
+                )
+        ));
+        output.accept(modId("hunter_alchemy"), new SkillTreeConfiguration(trees.getOrThrow(HunterSkills.Trees.ALCHEMY), nodes.getOrThrow(HunterSkills.Nodes.ALCHEMY),
+                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.ALCHEMY1),
+                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.ALCHEMY2),
+                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.ALCHEMY3),
+                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.ALCHEMY4),
+                                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.ALCHEMY5),
+                                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.ALCHEMY6))
                                                 )
                                         )
                                 )
                         )
-                )
-        ));
+                )));
+        output.accept(modId("hunter_armor"), new SkillTreeConfiguration(trees.getOrThrow(HunterSkills.Trees.ARMORER), nodes.getOrThrow(HunterSkills.Nodes.ARMORER),
+                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.WEAPON1),
+                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.WEAPON2),
+                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.WEAPON3),
+                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.WEAPON4),
+                                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.WEAPON5),
+                                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.WEAPON6))
+                                                )
+                                        )
+                                )
+                        )
+                )));
+        output.accept(modId("hunter_potions"), new SkillTreeConfiguration(trees.getOrThrow(HunterSkills.Trees.POTIONS), nodes.getOrThrow(HunterSkills.Nodes.POTIONS),
+                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.POTION1),
+                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.POTION2),
+                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.POTION3),
+                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.POTION4),
+                                                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.POTION5),
+                                                        new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.POTION6))
+                                                )
+                                        )
+                                )
+                        )
+                )));
         output.accept(modId("hunter_lord"), new SkillTreeConfiguration(trees.getOrThrow(HunterSkills.Trees.LORD), nodes.getOrThrow(HunterSkills.Nodes.LORD_ROOT),
                         new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.LORD_2),
                                 new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(HunterSkills.Nodes.LORD_6))),

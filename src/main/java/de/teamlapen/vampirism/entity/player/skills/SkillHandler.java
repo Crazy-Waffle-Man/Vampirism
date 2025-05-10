@@ -29,6 +29,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.common.extensions.IHolderExtension;
 import org.apache.commons.lang3.tuple.Pair;
@@ -135,6 +136,7 @@ public class SkillHandler<T extends IFactionPlayer<T> & ISkillPlayer<T>> impleme
             VampirismEventFactory.fireSkillDisabledEvent(player, skill);
             skill.value().onDisable(player);
             dirty = true;
+            checkSkillTrees();
         }
     }
 
@@ -153,8 +155,35 @@ public class SkillHandler<T extends IFactionPlayer<T> & ISkillPlayer<T>> impleme
             if (this.player.asEntity() instanceof ServerPlayer serverPlayer && serverPlayer.connection != null) {
                 ModAdvancements.TRIGGER_SKILL_UNLOCKED.get().trigger(serverPlayer, skill.value());
             }
+            checkSkillTrees();
         }
 
+    }
+
+    @Override
+    public void checkSkillTrees() {
+        if (!(this.player.asEntity().level() instanceof ServerLevel level)) return;
+        lockSkillTrees(level);
+        unlockSkillTrees(level);
+    }
+
+    private void lockSkillTrees(ServerLevel level) {
+        for (Holder<ISkillTree> skillTree : this.unlockedTrees.stream().toList()) {
+            if (!skillTree.value().unlockPredicate().matches(level, null, this.player.asEntity())) {
+                lockSkillTree(skillTree);
+            }
+        }
+    }
+
+    private void unlockSkillTrees(ServerLevel level) {
+        Registry<ISkillTree> registryAccess = level.registryAccess().lookupOrThrow(VampirismRegistries.Keys.SKILL_TREE);
+        List<Holder<ISkillTree>> skillTrees = registryAccess.listElements().collect(Collectors.toList());
+        skillTrees.removeAll(this.unlockedTrees);
+        for (Holder<ISkillTree> skillTree : skillTrees) {
+            if (skillTree.value().unlockPredicate().matches(level, null, this.player.asEntity())) {
+                unlockSkillTree(skillTree);
+            }
+        }
     }
 
     @Override

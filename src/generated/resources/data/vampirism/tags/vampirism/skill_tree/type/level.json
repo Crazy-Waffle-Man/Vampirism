@@ -1,6 +1,9 @@
 {
   "values": [
     "vampirism:hunter/level",
-    "vampirism:vampire/level"
+    "vampirism:vampire/level",
+    "vampirism:hunter/alchemy",
+    "vampirism:hunter/armorer",
+    "vampirism:hunter/potions"
   ]
 }

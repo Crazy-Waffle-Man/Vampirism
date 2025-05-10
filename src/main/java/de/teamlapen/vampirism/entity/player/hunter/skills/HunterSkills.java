@@ -1,7 +1,9 @@
 package de.teamlapen.vampirism.entity.player.hunter.skills;
 
 import de.teamlapen.vampirism.REFERENCE;
+import de.teamlapen.vampirism.advancements.critereon.AndSubPredicate;
 import de.teamlapen.vampirism.advancements.critereon.PlayerFactionSubPredicate;
+import de.teamlapen.vampirism.advancements.critereon.SkillUnlockedSubPredicate;
 import de.teamlapen.vampirism.api.VampirismRegistries;
 import de.teamlapen.vampirism.api.entity.factions.ISkillNode;
 import de.teamlapen.vampirism.api.entity.factions.ISkillTree;
@@ -9,6 +11,7 @@ import de.teamlapen.vampirism.api.entity.player.hunter.IHunterPlayer;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.config.VampirismConfig;
+import de.teamlapen.vampirism.core.ModBlocks;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.entity.player.hunter.actions.HunterActions;
@@ -17,6 +20,7 @@ import de.teamlapen.vampirism.entity.player.skills.ActionSkill;
 import de.teamlapen.vampirism.entity.player.skills.SkillNode;
 import de.teamlapen.vampirism.entity.player.skills.SkillTree;
 import de.teamlapen.vampirism.entity.player.skills.VampirismSkill;
+import io.netty.channel.epoll.EpollServerDomainSocketChannel;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -26,6 +30,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -42,6 +49,9 @@ public class HunterSkills {
 
     public static final DeferredHolder<ISkill<?>, ISkill<IHunterPlayer>> LEVEL_ROOT = SKILLS.register(ModFactions.HUNTER.getKey().location().getPath(), () -> new VampirismSkill.SimpleHunterSkill(0, false));
     public static final DeferredHolder<ISkill<?>, ISkill<IHunterPlayer>> LORD_ROOT = SKILLS.register(ModFactions.HUNTER.getKey().location().withSuffix("_lord").getPath(), () -> new VampirismSkill.SimpleHunterSkill(0, false));
+    public static final DeferredHolder<ISkill<?>, ISkill<IHunterPlayer>> ALCHEMY_ROOT = SKILLS.register(ModFactions.HUNTER.getKey().location().withSuffix("_alchemy").getPath(), () -> new VampirismSkill.SimpleHunterSkill(0, false));
+    public static final DeferredHolder<ISkill<?>, ISkill<IHunterPlayer>> ARMORER_ROOT = SKILLS.register(ModFactions.HUNTER.getKey().location().withSuffix("_armorer").getPath(), () -> new VampirismSkill.SimpleHunterSkill(0, false));
+    public static final DeferredHolder<ISkill<?>, ISkill<IHunterPlayer>> POTION_ROOT = SKILLS.register(ModFactions.HUNTER.getKey().location().withSuffix("_potion").getPath(), () -> new VampirismSkill.SimpleHunterSkill(0, false));
     public static final DeferredHolder<ISkill<?>, ISkill<IHunterPlayer>> BASIC_ALCHEMY = SKILLS.register("basic_alchemy", () -> new VampirismSkill.SimpleHunterSkill(2, true));
     public static final DeferredHolder<ISkill<?>, ISkill<IHunterPlayer>> GARLIC_DIFFUSER = SKILLS.register("garlic_diffuser", () -> new VampirismSkill.SimpleHunterSkill(2, true));
     public static final DeferredHolder<ISkill<?>, ISkill<IHunterPlayer>> GARLIC_DIFFUSER_IMPROVED = SKILLS.register("garlic_diffuser_improved", () -> new VampirismSkill.SimpleHunterSkill(2, true));
@@ -95,18 +105,21 @@ public class HunterSkills {
         public static final ResourceKey<ISkillNode> SKILL2 = node("skill2");
         public static final ResourceKey<ISkillNode> SKILL3 = node("skill3");
         public static final ResourceKey<ISkillNode> SKILL4 = node("skill4");
+        public static final ResourceKey<ISkillNode> ALCHEMY = node("alchemy");
         public static final ResourceKey<ISkillNode> ALCHEMY1 = node("alchemy1");
         public static final ResourceKey<ISkillNode> ALCHEMY2 = node("alchemy2");
         public static final ResourceKey<ISkillNode> ALCHEMY3 = node("alchemy3");
         public static final ResourceKey<ISkillNode> ALCHEMY4 = node("alchemy4");
         public static final ResourceKey<ISkillNode> ALCHEMY5 = node("alchemy5");
         public static final ResourceKey<ISkillNode> ALCHEMY6 = node("alchemy6");
+        public static final ResourceKey<ISkillNode> POTIONS = node("potions");
         public static final ResourceKey<ISkillNode> POTION1 = node("potion1");
         public static final ResourceKey<ISkillNode> POTION2 = node("potion2");
         public static final ResourceKey<ISkillNode> POTION3 = node("potion3");
         public static final ResourceKey<ISkillNode> POTION4 = node("potion4");
         public static final ResourceKey<ISkillNode> POTION5 = node("potion5");
         public static final ResourceKey<ISkillNode> POTION6 = node("potion6");
+        public static final ResourceKey<ISkillNode> ARMORER = node("armorer");
         public static final ResourceKey<ISkillNode> WEAPON1 = node("weapon1");
         public static final ResourceKey<ISkillNode> WEAPON2 = node("weapon2");
         public static final ResourceKey<ISkillNode> WEAPON3 = node("weapon3");
@@ -131,6 +144,7 @@ public class HunterSkills {
             context.register(SKILL3, new SkillNode(HUNTER_DISGUISE));
             context.register(SKILL4, new SkillNode(WEAPON_TABLE));
 
+            context.register(ALCHEMY, new SkillNode(ALCHEMY_ROOT));
             context.register(ALCHEMY1, new SkillNode(BASIC_ALCHEMY));
             context.register(ALCHEMY2, new SkillNode(CRUCIFIX_WIELDER));
             context.register(ALCHEMY3, new SkillNode(GARLIC_DIFFUSER));
@@ -138,6 +152,7 @@ public class HunterSkills {
             context.register(ALCHEMY5, new SkillNode(ENHANCED_BLESSING, ULTIMATE_CRUCIFIX));
             context.register(ALCHEMY6, new SkillNode(HUNTER_AWARENESS));
 
+            context.register(POTIONS, new SkillNode(POTION_ROOT));
             context.register(POTION1, new SkillNode(MULTITASK_BREWING));
             context.register(POTION2, new SkillNode(DURABLE_BREWING, CONCENTRATED_BREWING));
             context.register(POTION3, new SkillNode(SWIFT_BREWING, EFFICIENT_BREWING));
@@ -145,6 +160,7 @@ public class HunterSkills {
             context.register(POTION5, new SkillNode(POTION_RESISTANCE));
             context.register(POTION6, new SkillNode(CONCENTRATED_DURABLE_BREWING));
 
+            context.register(ARMORER, new SkillNode(ARMORER_ROOT));
             context.register(WEAPON1, new SkillNode(HUNTER_ATTACK_SPEED, HUNTER_ATTACK_DAMAGE));
             context.register(WEAPON2, new SkillNode(ARMOR_SPEED, ARMOR_JUMP));
             context.register(WEAPON3, new SkillNode(CROSSBOW_TECHNIQUE, DOUBLE_IT));
@@ -163,6 +179,9 @@ public class HunterSkills {
 
     public static class Trees {
         public static final ResourceKey<ISkillTree> LEVEL = tree("level");
+        public static final ResourceKey<ISkillTree> POTIONS = tree("potions");
+        public static final ResourceKey<ISkillTree> ALCHEMY = tree("alchemy");
+        public static final ResourceKey<ISkillTree> ARMORER = tree("armorer");
         public static final ResourceKey<ISkillTree> LORD = tree("lord");
 
         private static ResourceKey<ISkillTree> tree(String path) {
@@ -171,8 +190,11 @@ public class HunterSkills {
 
         public static void createSkillTrees(BootstrapContext<ISkillTree> context) {
             HolderGetter<ISkillNode> lookup = context.lookup(VampirismRegistries.Keys.SKILL_NODE);
-            context.register(LEVEL, new SkillTree(ModFactions.HUNTER, EntityPredicate.Builder.entity().subPredicate(PlayerFactionSubPredicate.faction(ModFactions.HUNTER)).build(), new ItemStack(ModItems.VAMPIRE_BOOK.get()), Component.translatable("text.vampirism.skills.level"), Optional.of(VResourceLocation.mc("block/spruce_planks"))));
+            context.register(LEVEL, new SkillTree(ModFactions.HUNTER,EntityPredicate.Builder.entity().subPredicate(PlayerFactionSubPredicate.faction(ModFactions.HUNTER)).build(), new ItemStack(ModItems.VAMPIRE_BOOK.get()), Component.translatable("text.vampirism.skills.level"), Optional.of(VResourceLocation.mc("block/spruce_planks"))));
             context.register(LORD, new SkillTree(ModFactions.HUNTER, EntityPredicate.Builder.entity().subPredicate(PlayerFactionSubPredicate.lord(ModFactions.HUNTER)).build(), new ItemStack(ModItems.HUNTER_MINION_EQUIPMENT.get()), Component.translatable("text.vampirism.skills.lord"), Optional.of(VResourceLocation.mc("block/spruce_planks"))));
+            context.register(POTIONS, SkillTree.create(ModFactions.HUNTER).addPredicate(SkillUnlockedSubPredicate.skill(HunterSkills.WEAPON_TABLE)).display(PotionContents.createItemStack(Items.POTION, Potions.REGENERATION)).name(Component.translatable("Potions")).background(VResourceLocation.mc("block/spruce_planks")).build());
+            context.register(ALCHEMY, SkillTree.create(ModFactions.HUNTER).addPredicate(SkillUnlockedSubPredicate.skill(HunterSkills.WEAPON_TABLE)).display(ModBlocks.ALCHEMICAL_CAULDRON).name(Component.translatable("Alchemy")).background(VResourceLocation.mc("block/spruce_planks")).build());
+            context.register(ARMORER, SkillTree.create(ModFactions.HUNTER).addPredicate(SkillUnlockedSubPredicate.skill(HunterSkills.WEAPON_TABLE)).display(ModBlocks.WEAPON_TABLE).name(Component.translatable("Armorer")).background(VResourceLocation.mc("block/spruce_planks")).build());
         }
 
     }

@@ -1,0 +1,34 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "node": "vampirism:hunter/alchemy6"
+                        }
+                      ],
+                      "node": "vampirism:hunter/alchemy5"
+                    }
+                  ],
+                  "node": "vampirism:hunter/alchemy4"
+                }
+              ],
+              "node": "vampirism:hunter/alchemy3"
+            }
+          ],
+          "node": "vampirism:hunter/alchemy2"
+        }
+      ],
+      "node": "vampirism:hunter/alchemy1"
+    }
+  ],
+  "node": "vampirism:hunter/alchemy",
+  "skill_tree": "vampirism:hunter/alchemy"
+}

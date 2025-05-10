@@ -1,0 +1,34 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "node": "vampirism:hunter/potion6"
+                        }
+                      ],
+                      "node": "vampirism:hunter/potion5"
+                    }
+                  ],
+                  "node": "vampirism:hunter/potion4"
+                }
+              ],
+              "node": "vampirism:hunter/potion3"
+            }
+          ],
+          "node": "vampirism:hunter/potion2"
+        }
+      ],
+      "node": "vampirism:hunter/potion1"
+    }
+  ],
+  "node": "vampirism:hunter/potions",
+  "skill_tree": "vampirism:hunter/potions"
+}

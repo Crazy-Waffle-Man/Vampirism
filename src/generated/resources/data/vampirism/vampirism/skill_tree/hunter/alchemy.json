@@ -1,0 +1,26 @@
+{
+  "background": "minecraft:block/spruce_planks",
+  "display": {
+    "count": 1,
+    "id": "vampirism:alchemical_cauldron"
+  },
+  "faction": "vampirism:hunter",
+  "name": {
+    "translate": "Alchemy"
+  },
+  "unlock_predicate": {
+    "type_specific": {
+      "type": "vampirism:and",
+      "sub_predicates": [
+        {
+          "type": "vampirism:faction",
+          "faction": "vampirism:hunter"
+        },
+        {
+          "type": "vampirism:kill_unlocked",
+          "skill": "vampirism:weapon_table"
+        }
+      ]
+    }
+  }
+}
