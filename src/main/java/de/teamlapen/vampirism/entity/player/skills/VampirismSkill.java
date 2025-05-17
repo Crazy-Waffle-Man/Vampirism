@@ -9,8 +9,8 @@ import de.teamlapen.vampirism.api.entity.player.hunter.IHunterPlayer;
 import de.teamlapen.vampirism.api.entity.player.skills.DefaultSkill;
 import de.teamlapen.vampirism.api.entity.player.vampire.IVampirePlayer;
 import de.teamlapen.vampirism.core.tags.ModFactionTags;
+import de.teamlapen.vampirism.core.tags.ModSkillTreeTags;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
-import de.teamlapen.vampirism.entity.player.vampire.skills.VampireSkills;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
@@ -127,7 +127,7 @@ public abstract class VampirismSkill<T extends IFactionPlayer<T> & ISkillPlayer<
     public static class SimpleVampireSkill extends VampirismSkill<IVampirePlayer> {
 
         public SimpleVampireSkill(int skillPointCost, boolean desc) {
-            super(Either.left(VampireSkills.Trees.LEVEL), skillPointCost, desc);
+            super(Either.right(ModSkillTreeTags.VAMPIRE_LEVEL), skillPointCost, desc);
         }
 
         @Override
@@ -138,7 +138,18 @@ public abstract class VampirismSkill<T extends IFactionPlayer<T> & ISkillPlayer<
 
     public static class VampireLordSkill extends VampirismSkill<IVampirePlayer> {
         public VampireLordSkill(int skillPointCost, boolean desc) {
-            super(Either.left(VampireSkills.Trees.LORD), skillPointCost, desc);
+            super(Either.right(ModSkillTreeTags.VAMPIRE_LORD), skillPointCost, desc);
+        }
+
+        @Override
+        public TagKey<? extends IFaction<?>> factions() {
+            return ModFactionTags.IS_VAMPIRE;
+        }
+    }
+
+    public static class DraculaSkill extends VampirismSkill<IVampirePlayer> {
+        public DraculaSkill(int skillPointCost, boolean desc) {
+            super(Either.right(ModSkillTreeTags.VAMPIRE_DRACULA), skillPointCost, desc);
         }
 
         @Override

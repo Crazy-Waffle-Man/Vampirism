@@ -1,6 +1,6 @@
 {
   "values": [
-    "vampirism:hunter/level",
-    "vampirism:hunter/lord"
+    "#vampirism:faction/hunter/level",
+    "#vampirism:faction/hunter/lord"
   ]
 }

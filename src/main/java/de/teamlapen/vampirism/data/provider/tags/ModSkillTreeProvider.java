@@ -20,12 +20,22 @@ public class ModSkillTreeProvider extends TagsProvider<ISkillTree> {
         super(output, VampirismRegistries.Keys.SKILL_TREE, provider, REFERENCE.MODID);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void addTags(HolderLookup.@NotNull Provider pProvider) {
-        this.tag(ModSkillTreeTags.HUNTER).add(HunterSkills.Trees.LEVEL, HunterSkills.Trees.LORD);
-        this.tag(ModSkillTreeTags.VAMPIRE).add(VampireSkills.Trees.LEVEL, VampireSkills.Trees.LORD);
+        this.tag(ModSkillTreeTags.VAMPIRE_LEVEL).add(VampireSkills.Trees.LEVEL);
+        this.tag(ModSkillTreeTags.VAMPIRE_LORD).add(VampireSkills.Trees.LORD);
+        this.tag(ModSkillTreeTags.VAMPIRE_DRACULA).add(VampireSkills.Trees.DRACULA);
+        this.tag(ModSkillTreeTags.HUNTER_LEVEL).add(HunterSkills.Trees.LEVEL);
+        this.tag(ModSkillTreeTags.HUNTER_LORD).add(HunterSkills.Trees.LORD);
+
+        this.tag(ModSkillTreeTags.HUNTER).addTags(ModSkillTreeTags.HUNTER_LEVEL, ModSkillTreeTags.HUNTER_LORD);
+        this.tag(ModSkillTreeTags.VAMPIRE).addTags(ModSkillTreeTags.VAMPIRE_LEVEL, ModSkillTreeTags.VAMPIRE_LORD, ModSkillTreeTags.VAMPIRE_DRACULA);
         this.tag(ModSkillTreeTags.LEVEL).add(HunterSkills.Trees.LEVEL, VampireSkills.Trees.LEVEL);
         this.tag(ModSkillTreeTags.LORD).add(HunterSkills.Trees.LORD, VampireSkills.Trees.LORD);
+        this.tag(ModSkillTreeTags.DRACULA).add(VampireSkills.Trees.DRACULA);
         this.tag(ModSkillTreeTags.DEFAULT).addTag(ModSkillTreeTags.LEVEL).addTag(ModSkillTreeTags.LORD);
+
+
     }
 }

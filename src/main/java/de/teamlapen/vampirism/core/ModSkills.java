@@ -5,6 +5,7 @@ import de.teamlapen.vampirism.api.entity.factions.ISkillTree;
 import de.teamlapen.vampirism.api.entity.player.IFactionPlayer;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkillPointProvider;
 import de.teamlapen.vampirism.api.entity.player.skills.SkillPointProviders;
+import de.teamlapen.vampirism.api.entity.player.vampire.IDraculaPlayer;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.tags.ModSkillTreeTags;
@@ -20,6 +21,8 @@ public class ModSkills {
     public static final ISkillPointProvider LEVELING = SkillPointProviders.register(VResourceLocation.mod("leveling"), (factionPlayer, tree) -> tree.is(ModSkillTreeTags.DEFAULT) ? (int) (Math.max(0, factionPlayer.getLevel() - 1) * VampirismConfig.BALANCE.skillPointsPerLevel.get()) : 0);
 
     public static final ISkillPointProvider LORD_LEVELING = SkillPointProviders.register(VResourceLocation.mod("lord_leveling"), (factionPlayer, tree) -> tree.is(ModSkillTreeTags.DEFAULT) ? (int) (Math.max(0, FactionPlayerHandler.get(factionPlayer.asEntity()).getLordLevel() - 1) * VampirismConfig.BALANCE.skillPointsPerLordLevel.get()) : 0);
+
+    public static final ISkillPointProvider DRACULA = SkillPointProviders.register(VResourceLocation.mod("dracula"), ((factionPlayer, tree) -> tree.is(VampireSkills.Trees.DRACULA) ? IDraculaPlayer.getDracula(factionPlayer.asEntity()).map(IDraculaPlayer::isLord).orElse(false) ? 5 : 0 : 0));
 
     public static final ISkillPointProvider CONFIG_UNLOCK_ALL = SkillPointProviders.register(VResourceLocation.mod("config_unlock_all"), new ISkillPointProvider() {
 

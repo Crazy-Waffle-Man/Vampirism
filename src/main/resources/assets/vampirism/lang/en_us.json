@@ -104,6 +104,7 @@
   "text.vampirism.oil.wetting_status": "Wetting",
   "text.vampirism.skills.level": "Level Skills",
   "text.vampirism.skills.lord": "Lord Skills",
+  "text.vampirism.skills.dracula": "Dracula Skills",
   "text.vampirism.faction_exclusive": "Exclusive to %s faction",
   "effect.vampirism.wrong_equipment.note": "Wrong equipment",
   "text.vampirism.no_actions": "No assigned actions",

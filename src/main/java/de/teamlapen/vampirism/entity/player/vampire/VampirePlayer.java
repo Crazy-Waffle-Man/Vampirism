@@ -39,6 +39,7 @@ import de.teamlapen.vampirism.entity.player.actions.ActionHandler;
 import de.teamlapen.vampirism.entity.player.skills.RefinementHandler;
 import de.teamlapen.vampirism.entity.player.skills.SkillHandler;
 import de.teamlapen.vampirism.entity.player.vampire.actions.VampireActions;
+import de.teamlapen.vampirism.entity.player.vampire.skills.VampireSkills;
 import de.teamlapen.vampirism.entity.vampire.DrinkBloodContext;
 import de.teamlapen.vampirism.fluids.BloodHelper;
 import de.teamlapen.vampirism.items.HunterArmorItem;
@@ -519,7 +520,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
     @Override
     public boolean isGettingSundamage(LevelAccessor iWorld, boolean forcerefresh) {
         if (forcerefresh) {
-            sundamage_cache = Helper.gettingSundamge(player, iWorld) && ModItems.UMBRELLA.get() != player.getMainHandItem().getItem();
+            sundamage_cache = !getSkillHandler().isSkillEnabled(VampireSkills.WANDER_THE_SUN) && Helper.gettingSundamge(player, iWorld) && ModItems.UMBRELLA.get() != player.getMainHandItem().getItem();
         }
         return sundamage_cache;
     }

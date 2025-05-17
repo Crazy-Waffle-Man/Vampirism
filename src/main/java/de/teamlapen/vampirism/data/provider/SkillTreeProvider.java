@@ -122,6 +122,9 @@ public class SkillTreeProvider extends de.teamlapen.vampirism.data.provider.pare
                 new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(VampireSkills.Nodes.LORD_SKILL4)),
                 new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(VampireSkills.Nodes.LORD_SKILL5))
         ));
-
+        output.accept(modId("vampire_dracula"), new SkillTreeConfiguration(trees.getOrThrow(VampireSkills.Trees.DRACULA), nodes.getOrThrow(VampireSkills.Nodes.DRACULA_ROOT),
+                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(VampireSkills.Nodes.DRACULA_1)),
+                new SkillTreeConfiguration.SkillTreeNodeConfiguration(nodes.getOrThrow(VampireSkills.Nodes.DRACULA_2))
+        ));
     }
 }

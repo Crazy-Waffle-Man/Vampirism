@@ -21,7 +21,7 @@ public class VampirePlayerRenderStateMixin implements IVampirePlayerRenderStateE
     @Unique
     private final AnimationState vampirism$growingWingsAnimationState = new AnimationState();
     @Unique
-    private IWingsEntity.WingsState vampirism$wingsState;
+    private IWingsEntity.WingsState vampirism$wingsState = IWingsEntity.WingsState.CLOSED;
     @Nullable
     @Unique
     private ResourceLocation vampirism$wingsTexture;

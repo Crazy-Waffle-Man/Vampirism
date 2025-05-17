@@ -5,6 +5,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.factions.IPlayableFaction;
+import de.teamlapen.vampirism.api.entity.player.vampire.IDraculaPlayer;
+import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
 import de.teamlapen.vampirism.util.FactionCodec;
 import net.minecraft.advancements.critereon.EntitySubPredicate;
@@ -25,7 +27,8 @@ public class PlayerFactionSubPredicate implements EntitySubPredicate {
             inst.group(
                     FactionCodec.playable().optionalFieldOf("faction", null).forGetter(p -> p.faction),
                     Codec.INT.optionalFieldOf("level").forGetter(p -> p.level),
-                    Codec.INT.optionalFieldOf("lord_level").forGetter(p -> p.lordLevel)
+                    Codec.INT.optionalFieldOf("lord_level").forGetter(p -> p.lordLevel),
+                    Codec.BOOL.optionalFieldOf("dracula").forGetter(p -> p.dracula)
             ).apply(inst, PlayerFactionSubPredicate::new)
     );
 
@@ -35,16 +38,26 @@ public class PlayerFactionSubPredicate implements EntitySubPredicate {
     private final Optional<Integer> level;
     @NotNull
     private final Optional<Integer> lordLevel;
+    private final Optional<Boolean> dracula;
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private PlayerFactionSubPredicate(@Nullable Holder<? extends IPlayableFaction<?>> faction, @NotNull Optional<Integer> level, @NotNull Optional<Integer> lordLevel) {
+    private PlayerFactionSubPredicate(@Nullable Holder<? extends IPlayableFaction<?>> faction, @NotNull Optional<Integer> level, @NotNull Optional<Integer> lordLevel, Optional<Boolean> dracula) {
         this.faction = faction;
         this.level = level;
         this.lordLevel = lordLevel;
+        this.dracula = dracula;
+    }
+
+    private PlayerFactionSubPredicate(@Nullable Holder<? extends IPlayableFaction<?>> faction, @NotNull Optional<Integer> level, @NotNull Optional<Integer> lordLevel) {
+        this(faction, level, lordLevel, Optional.empty());
     }
 
     public static PlayerFactionSubPredicate faction(@NotNull Holder<? extends IPlayableFaction<?>> faction) {
         return new PlayerFactionSubPredicate(faction, Optional.empty(), Optional.empty());
+    }
+
+    public static PlayerFactionSubPredicate dracula() {
+        return new PlayerFactionSubPredicate(ModFactions.VAMPIRE, Optional.empty(), Optional.empty(), Optional.of(true));
     }
 
     public static PlayerFactionSubPredicate level(@NotNull Holder<? extends IPlayableFaction<?>> faction, int level) {
@@ -71,9 +84,12 @@ public class PlayerFactionSubPredicate implements EntitySubPredicate {
     public boolean matches(@NotNull Entity pEntity, @NotNull ServerLevel pLevel, @Nullable Vec3 p_218830_) {
         if (pEntity instanceof Player player) {
             FactionPlayerHandler fph = FactionPlayerHandler.get(player);
-            return (faction == null || IFaction.is(fph.getFaction(), faction))
+            var allowed = (faction == null || IFaction.is(fph.getFaction(), faction))
                     && (level.isEmpty() || fph.getCurrentLevel() >= level.get())
                     && (lordLevel.isEmpty() || fph.getLordLevel() >= lordLevel.get());
+            allowed = allowed &&
+                    (!dracula.orElse(false) || IDraculaPlayer.getDracula(player).map(IDraculaPlayer::isLord).orElse(false));
+            return allowed;
         }
         return false;
     }
