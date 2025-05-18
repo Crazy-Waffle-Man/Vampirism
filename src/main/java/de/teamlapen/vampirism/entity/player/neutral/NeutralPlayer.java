@@ -2,6 +2,7 @@ package de.teamlapen.vampirism.entity.player.neutral;
 
 import de.teamlapen.vampirism.api.VampirismAttachments;
 import de.teamlapen.vampirism.api.entity.factions.IDisguise;
+import de.teamlapen.vampirism.api.entity.factions.LevelingChange;
 import de.teamlapen.vampirism.api.entity.player.neutral.INeutralPlayer;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.entity.player.FactionBasePlayer;
@@ -39,6 +40,16 @@ public class NeutralPlayer extends FactionBasePlayer<INeutralPlayer> implements 
     @Override
     public Predicate<LivingEntity> getNonFriendlySelector(boolean otherFactionPlayers, boolean ignoreDisguise) {
         return null;
+    }
+
+    @Override
+    public void levelChanged(LevelingChange changes) {
+
+    }
+
+    @Override
+    public void leaveFaction() {
+
     }
 
     public static class Serializer implements IAttachmentSerializer<CompoundTag, NeutralPlayer> {

@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.entity.player;
 
 import de.teamlapen.lib.lib.storage.UpdateParams;
+import de.teamlapen.vampirism.api.entity.factions.LevelingChange;
 import de.teamlapen.vampirism.api.entity.player.IFactionPlayer;
 import de.teamlapen.vampirism.api.entity.player.ISkillPlayer;
 import de.teamlapen.vampirism.api.entity.player.ITaskPlayer;
@@ -88,17 +89,31 @@ public abstract class CommonFactionPlayer<T extends IFactionPlayer<T> & ISkillPl
 
     @MustBeInvokedByOverriders
     @Override
-    public void onLevelChanged(int newLevel, int oldLevel) {
-        if (!isRemote()) {
-            if (newLevel <= 0) {
-                this.onLevelReset(false);
-                this.sync(UpdateParams.all());
-            }
+    public void levelChanged(LevelingChange changes) {
+        onLevelChanged(changes.getNewLevel());
+    }
 
+    protected void onLevelChanged(int newLevel) {
+
+    }
+
+    @MustBeInvokedByOverriders
+    @Override
+    public void leaveFaction() {
+        onLevelChanged(0);
+        this.onLevelReset(true);
+        this.sync(UpdateParams.all());
+    }
+
+    @SuppressWarnings("removal")
+    @MustBeInvokedByOverriders
+    @Override
+    public void onLevelChanged(int newLevel, int oldLevel) {
+        if (newLevel == 0) {
+            this.leaveFaction();
+            this.sync(UpdateParams.all());
         } else {
-            if (newLevel == 0) {
-                this.onLevelReset(true);
-            }
+            levelChanged(LevelingChange.builder().faction(this.getFaction()).level(newLevel).build());
         }
     }
 

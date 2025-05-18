@@ -1,10 +1,7 @@
 package de.teamlapen.vampirism.api.entity.player;
 
 import de.teamlapen.vampirism.api.VampirismAPI;
-import de.teamlapen.vampirism.api.entity.factions.IDisguise;
-import de.teamlapen.vampirism.api.entity.factions.IFactionEntity;
-import de.teamlapen.vampirism.api.entity.factions.IFactionPlayerHandler;
-import de.teamlapen.vampirism.api.entity.factions.IPlayableFaction;
+import de.teamlapen.vampirism.api.entity.factions.*;
 import de.teamlapen.vampirism.api.extensions.IPlayer;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.LivingEntity;
@@ -83,6 +80,11 @@ public interface IFactionPlayer<T extends IFactionPlayer<T>> extends IFactionEnt
      * Is called on client and server side.
      * Might be called with oldLevel=newLevel to reset things
      */
+    @Deprecated(forRemoval = true)
     void onLevelChanged(int newLevel, int oldLevel);
+
+    void levelChanged(LevelingChange changes);
+
+    void leaveFaction();
 
 }

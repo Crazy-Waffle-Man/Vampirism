@@ -16,8 +16,10 @@ import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.core.ModSounds;
 import de.teamlapen.vampirism.data.ClientSkillTreeData;
 import de.teamlapen.vampirism.entity.player.skills.SkillHandler;
+import de.teamlapen.vampirism.entity.player.skills.SkillTreeConfiguration;
 import de.teamlapen.vampirism.network.ServerboundSimpleInputEvent;
 import de.teamlapen.vampirism.network.ServerboundUnlockSkillPacket;
+import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -28,19 +30,24 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.gui.widget.ExtendedButton;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Gui screen which displays the skills available to the player and allows them to unlock some.
@@ -50,6 +57,7 @@ import java.util.List;
  */
 @NonnullDefault
 public class SkillsScreen extends Screen {
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final int SCREEN_WIDTH = 252;
     public static final int SCREEN_HEIGHT = 219;
     private static final ResourceLocation WINDOW_LOCATION = VResourceLocation.mod("textures/gui/skills/window.png");
@@ -93,9 +101,26 @@ public class SkillsScreen extends Screen {
         this.guiLeft = (this.width - SCREEN_WIDTH) / 2;
         this.guiTop = (this.height - SCREEN_HEIGHT) / 2;
 
-        int index = 0;
         SkillHandler<?> skillHandler = (SkillHandler<?>) this.factionPlayer.getSkillHandler();
-        for (Holder<ISkillTree> unlockedSkillTree : skillHandler.unlockedSkillTrees()) {
+        ClientSkillTreeData treeData = (ClientSkillTreeData) skillHandler.getTreeData();
+
+        var allTrees = skillHandler.unlockedSkillTrees().stream().map(x -> Pair.of(treeData.getConfiguration(x), x)).collect(Collectors.toList());
+        var allTreeKeys = allTrees.stream().map(x -> x.key().skillTree().getKey()).collect(Collectors.toSet());
+        var sortedTrees = new ArrayList<Holder<ISkillTree>>();
+
+        while (!allTrees.isEmpty()) {
+            var newTrees = allTrees.stream().filter(x -> x.key().orderAfter().isEmpty() || x.key().orderAfter().stream().allMatch(y -> sortedTrees.stream().anyMatch(z -> z.is(y)) || !allTreeKeys.contains(y))).toList();
+            if (newTrees.isEmpty()) {
+                LOGGER.warn("Could not order skill trees: {}", allTrees.stream().map(x -> x.key().skillTree().getKey().toString()).collect(Collectors.joining(", ")) );
+                sortedTrees.addAll(allTrees.stream().map(Pair::value).toList());
+                break;
+            }
+            sortedTrees.addAll(newTrees.stream().map(Pair::value).toList());
+            allTrees.removeAll(newTrees);
+        }
+
+        int index = 0;
+        for (Holder<ISkillTree> unlockedSkillTree : sortedTrees) {
             this.tabs.add(new SkillsTabScreen(this.minecraft, this, index++, unlockedSkillTree, this.factionPlayer.getSkillHandler(), ((ClientSkillTreeData) skillHandler.getTreeData())));
         }
 

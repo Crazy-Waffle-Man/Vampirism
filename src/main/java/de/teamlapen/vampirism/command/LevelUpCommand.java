@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import de.teamlapen.lib.lib.util.BasicCommand;
+import de.teamlapen.vampirism.api.entity.factions.LevelingChange;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -32,7 +33,7 @@ public class LevelUpCommand extends BasicCommand {
             } else if (handler.getCurrentLevel() == handler.getFaction().value().getHighestReachableLevel()) {
                 context.getSource().sendSuccess(() -> Component.translatable("command.vampirism.base.levelup.max", players.size() > 1 ? player.getDisplayName() : "Player"), true);
             } else {
-                if (handler.setFactionAndLevel(handler.getFaction(), handler.getCurrentLevel() + 1)) {
+                if (handler.setFaction(LevelingChange.builder().level(handler.getCurrentLevel() + 1).build())) {
                     context.getSource().sendSuccess(() -> Component.translatable("command.vampirism.base.levelup.newlevel", player.getName(), handler.getFaction().value().getName(), handler.getCurrentLevel()), true);
                 } else {
                     context.getSource().sendFailure(players.size() > 1 ? Component.translatable("command.vampirism.failed_to_execute.players", player.getDisplayName()) : Component.translatable("command.vampirism.failed_to_execute"));

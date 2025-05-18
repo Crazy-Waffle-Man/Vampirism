@@ -2,12 +2,16 @@ package de.teamlapen.vampirism.data.provider.parent;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
+import de.teamlapen.vampirism.api.VampirismRegistries;
+import de.teamlapen.vampirism.api.entity.factions.ISkillNode;
+import de.teamlapen.vampirism.api.entity.factions.ISkillTree;
 import de.teamlapen.vampirism.entity.player.skills.SkillTreeConfiguration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,6 +26,8 @@ public abstract class SkillTreeProvider implements DataProvider {
     protected final PackOutput.PathProvider pathProvider;
     private final CompletableFuture<HolderLookup.Provider> lookupProvider;
     private final String modId;
+    private HolderLookup.RegistryLookup<ISkillTree> trees;
+    private HolderLookup.RegistryLookup<ISkillNode> nodes;
 
     public SkillTreeProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider, String modId) {
         this.pathProvider = packOutput.createPathProvider(PackOutput.Target.DATA_PACK, "vampirism/configured_skill_tree");
@@ -32,6 +38,8 @@ public abstract class SkillTreeProvider implements DataProvider {
     @Override
     public @NotNull CompletableFuture<?> run(@NotNull CachedOutput pOutput) {
         return this.lookupProvider.thenCompose(provider -> {
+            this.trees = provider.lookupOrThrow(VampirismRegistries.Keys.SKILL_TREE);
+            this.nodes = provider.lookupOrThrow(VampirismRegistries.Keys.SKILL_NODE);
             Set<ResourceLocation> set = new HashSet<>();
             List<CompletableFuture<?>> list = new ArrayList<>();
             RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, provider);
@@ -61,5 +69,13 @@ public abstract class SkillTreeProvider implements DataProvider {
     public interface SkillTreeOutput {
 
         ResourceLocation accept(ResourceLocation id, SkillTreeConfiguration skillTree);
+    }
+
+    protected SkillTreeConfiguration.RootBuilder tree(ResourceKey<ISkillTree> tree, ResourceKey<ISkillNode> root) {
+        return SkillTreeConfiguration.builder(this.trees.getOrThrow(tree), this.nodes.getOrThrow(root));
+    }
+
+    protected SkillTreeConfiguration.RootBuilder.Builder node(ResourceKey<ISkillNode> root) {
+        return new SkillTreeConfiguration.RootBuilder.Builder(this.nodes.getOrThrow(root));
     }
 }

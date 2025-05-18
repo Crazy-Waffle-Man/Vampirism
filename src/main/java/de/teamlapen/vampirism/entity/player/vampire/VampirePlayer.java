@@ -19,6 +19,7 @@ import de.teamlapen.vampirism.api.entity.IExtendedCreatureVampirism;
 import de.teamlapen.vampirism.api.entity.factions.IDisguise;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.factions.IPlayableFaction;
+import de.teamlapen.vampirism.api.entity.factions.LevelingChange;
 import de.teamlapen.vampirism.api.entity.player.skills.IRefinementHandler;
 import de.teamlapen.vampirism.api.entity.player.vampire.*;
 import de.teamlapen.vampirism.api.entity.vampire.IVampire;
@@ -695,42 +696,51 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
     }
 
     @Override
-    public void onLevelChanged(int newLevel, int oldLevel) {
-        super.onLevelChanged(newLevel, oldLevel);
-        if (newLevel > 0) {
-            this.applyEntityAttributes();
+    public void leaveFaction() {
+        this.removeEntityAttributes();
+        this.vision.deactivate();
+        if (this.player.getEffect(MobEffects.NIGHT_VISION) instanceof VampireNightVisionEffectInstance) {
+            this.player.removeEffect(MobEffects.NIGHT_VISION);
         }
-        if (!isRemote()) {
-            ScoreboardUtil.updateScoreboard(player, ScoreboardUtil.VAMPIRE_LEVEL_CRITERIA, newLevel);
-            applyLevelModifiersA(newLevel);
-            applyLevelModifiersB(newLevel, false);
-            if (player.getHealth() > player.getMaxHealth()) player.setHealth(player.getMaxHealth());
-            updateNaturalArmor(newLevel);
-            if (newLevel > 13) {
-                bloodStats.setMaxBlood(40);
-            } else if (newLevel > 9) {
-                bloodStats.setMaxBlood(34);
-            } else if (newLevel > 6) {
-                bloodStats.setMaxBlood(30);
-            } else if (newLevel > 3) {
-                bloodStats.setMaxBlood(26);
-            } else if (newLevel > 0) {
-                bloodStats.setMaxBlood(20);
-            } else {
-                this.vision.deactivate();
-                this.sync(UpdateParams.all());
-            }
-        } else {
-            if (oldLevel == 0) {
-                if (player.hasEffect(MobEffects.NIGHT_VISION)) {
-                    player.removeEffect(MobEffects.NIGHT_VISION);
-                }
-            } else if (newLevel == 0) {
-                if (player.getEffect(MobEffects.NIGHT_VISION) instanceof VampireNightVisionEffectInstance) {
-                    player.removeEffect(MobEffects.NIGHT_VISION);
-                }
-            }
+        this.resetDracula();
+        super.leaveFaction();
+    }
+
+    @Override
+    public void levelChanged(LevelingChange changes) {
+        this.applyEntityAttributes();
+        var newLevel = changes.getNewLevel();
+
+        int maxBlood = 20;
+
+        if (newLevel > 13) {
+            maxBlood = 40;
+        } else if (newLevel > 9) {
+            maxBlood = 34;
+        } else if (newLevel > 6) {
+            maxBlood = 30;
+        } else if (newLevel > 3) {
+            maxBlood = 26;
         }
+        this.bloodStats.setMaxBlood(maxBlood);
+
+        if (changes.getNewDracula()) {
+            this.draculaData.makeDracula();
+        } else if (changes.getNewLordLevel() < getFaction().value().getHighestLordLevel()) {
+            this.resetDracula();
+        }
+        super.levelChanged(changes);
+    }
+
+    @Override
+    protected void onLevelChanged(int level) {
+        ScoreboardUtil.updateScoreboard(this.player, ScoreboardUtil.VAMPIRE_LEVEL_CRITERIA, level);
+        applyLevelModifiersA(level);
+        applyLevelModifiersB(level, false);
+        if (this.player.getHealth() > this.player.getMaxHealth()) {
+            this.player.setHealth(this.player.getMaxHealth());
+        }
+        updateNaturalArmor(level);
     }
 
     @Override
@@ -1830,8 +1840,10 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
         }
 
         public void makeDracula() {
-            this.isDracula = true;
-            this.isDirty = true;
+            if (!this.isDracula) {
+                this.isDracula = true;
+                this.isDirty = true;
+            }
         }
 
     }

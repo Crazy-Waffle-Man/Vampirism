@@ -55,6 +55,7 @@ public class SkillsTabScreen {
     private final int index;
     private float fade;
     private final ClientSkillTreeData treeData;
+    private final SkillTreeConfiguration treeConfiguration;
     private double centerX;
     private double centerY;
     private final double maxZoom = 2;
@@ -76,9 +77,14 @@ public class SkillsTabScreen {
         this.treeHeight = this.treeData.getTreeHeight(skillTree);
         this.root = new SkillNodeScreen(minecraft, screen, this, this.treeData.root(skillTree), this.treeData, ((SkillHandler<?>) skillHandler));
         this.background = tree.background().map(x -> x.withPath(path -> "textures/" + path + ".png")).orElse(VResourceLocation.mod("textures/gui/skills/backgrounds/level.png"));
+        this.treeConfiguration = skillTreeData.getConfiguration(skillTree);
         addNode(this.root);
 
         recalculateBorders();
+    }
+
+    public SkillTreeConfiguration getTreeConfiguration() {
+        return this.treeConfiguration;
     }
 
     private void recalculateBorders() {

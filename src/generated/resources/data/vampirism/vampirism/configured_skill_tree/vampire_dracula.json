@@ -8,5 +8,8 @@
     }
   ],
   "node": "vampirism:vampire/dracula_root",
+  "orderAfter": [
+    "vampirism:vampire/lord"
+  ],
   "skill_tree": "vampirism:vampire/dracula"
 }

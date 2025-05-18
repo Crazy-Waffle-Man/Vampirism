@@ -12,6 +12,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -109,25 +110,39 @@ public interface IFactionPlayerHandler extends ILordPlayer, IPlayer {
 
     /**
      * Set the players faction and it's level. Only use this if you are sure that you want to override the previous faction.
-     *
+     * @deprecated use {@link #setFaction(LevelingChange)}
      * @return If successful
      */
+    @Deprecated(forRemoval = true)
     boolean setFactionAndLevel(@NotNull Holder<? extends IPlayableFaction<?>> faction, int level);
 
     /**
      * Set the level for a faction. Only works if the player already is in the given faction.
-     * Use {@link IFactionPlayerHandler#joinFaction(net.minecraft.core.Holder)} to join a faction first or {@link IFactionPlayerHandler#setFactionAndLevel(net.minecraft.core.Holder, int)} if you are sure what you do
+     * Use {@link IFactionPlayerHandler#joinFaction(net.minecraft.core.Holder)} to join a faction first or {@link IFactionPlayerHandler#setFaction(LevelingChange)} if you are sure what you do
      *
+     * @deprecated use {@link #setFaction(LevelingChange)}
      * @return If successful
      */
+    @Deprecated(forRemoval = true)
     boolean setFactionLevel(@NotNull Holder<? extends IPlayableFaction<?>> faction, int level);
+
+    /**
+     * Sets the faction for the player based on the given {@code FactionParam}.
+     *
+     * @param param The parameter containing information about the faction (and optionally level or lord level)
+     *              to be set for the player.
+     * @return {@code true} if the faction was successfully set, {@code false} otherwise.
+     */
+    boolean setFaction(LevelingChange param);
 
     /**
      * Set the players lord level.
      * Checks if player is in faction and at faction max level and if level is lower than max lord level
      *
+     * @deprecated use {@link #setFaction(LevelingChange)}
      * @return if successful
      */
+    @Deprecated(forRemoval = true)
     boolean setLordLevel(int level);
 
     /**
